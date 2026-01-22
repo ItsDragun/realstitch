@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Stitch - Inventory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <div id="auth-screen" class="flex flex-col items-center justify-center h-screen bg-indigo-900 text-white">
+        <h1 class="text-4xl font-bold mb-6">Real Stitch</h1>
+        <button id="login-btn" class="bg-white text-indigo-900 px-8 py-3 rounded-full font-bold shadow-lg">Sign in with Google</button>
+    </div>
+
+    <div id="dashboard" class="hidden max-w-6xl mx-auto p-6">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold">Real Stitch Catalog</h2>
+            <button id="logout-btn" class="text-red-500 font-bold">Logout</button>
+        </div>
+
+        <form id="inventory-form" class="bg-white p-6 rounded-xl shadow-md grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+            <input type="text" id="item-name" placeholder="Item Name" class="border p-3 rounded" required>
+            <input type="text" id="item-code" placeholder="Item Code" class="border p-3 rounded" required>
+            <div class="flex gap-2">
+                <select id="item-type-select" class="border p-3 rounded flex-1">
+                    <option value="">Select Type</option>
+                </select>
+                <button type="button" id="add-type-btn" class="bg-indigo-600 text-white px-4 rounded font-bold">+</button>
+            </div>
+            <input type="number" id="item-price" placeholder="Price ($)" class="border p-3 rounded" required>
+            <input type="file" id="item-image" accept="image/*" class="p-2 border rounded col-span-full">
+            <button type="submit" id="submit-btn" class="bg-indigo-600 text-white p-4 rounded-lg font-bold col-span-full">Add to Inventory</button>
+        </form>
+
+        <div class="flex justify-between mb-4">
+            <h3 class="text-xl font-bold">Inventory List</h3>
+            <button id="download-sold-pdf" class="bg-emerald-600 text-white px-4 py-2 rounded font-bold">Download Sold PDF</button>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-100 text-xs uppercase">
+                    <tr>
+                        <th class="p-4">Image</th>
+                        <th class="p-4">Item Details</th>
+                        <th class="p-4">Type/Price</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-list" class="divide-y"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDr51BYzXFgalvJAAB7qkWaOUHdYmt_btw",
+            authDomain: "real-stitch.firebaseapp.com",
+            projectId: "real-stitch",
+            storageBucket: "real-stitch.firebasestorage.app",
+            messagingSenderId: "447530536159",
+            appId: "1:447530536159:web:d1502bdafcd1892ef02d6a"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        // AUTH
+        document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
+        document.getElementById('logout-btn').onclick = () => signOut(auth);
+
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                loadTypes();
+                loadInventory();
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('dashboard').classList.add('hidden');
+            }
+        });
+
+        // FIX: LOAD TYPES
+        function loadTypes() {
+            onSnapshot(collection(db, "types"), (snap) => {
+                const select = document.getElementById('item-type-select');
+                select.innerHTML = '<option value="">Select Type</option>';
+                snap.forEach(d => {
+                    select.innerHTML += `<option value="${d.data().name}">${d.data().name}</option>`;
+                });
+            });
+        }
+
+        document.getElementById('add-type-btn').onclick = async () => {
+            const name = prompt("New Item Type:");
+            if (name) await addDoc(collection(db, "types"), { name });
+        };
+
+        // IMAGE CONVERTER (No Storage Needed)
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        // SUBMIT
+        document.getElementById('inventory-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+
+            const file = document.getElementById('item-image').files[0];
+            let imageBase64 = "";
+            if (file) imageBase64 = await toBase64(file);
+
+            await addDoc(collection(db, "inventory"), {
+                name: document.getElementById('item-name').value,
+                code: document.getElementById('item-code').value,
+                type: document.getElementById('item-type-select').value,
+                price: document.getElementById('item-price').value,
+                image: imageBase64,
+                status: 'in stock',
+                createdAt: new Date()
+            });
+
+            btn.innerText = "Add to Inventory";
+            btn.disabled = false;
+            e.target.reset();
+        };
+
+        // LOAD LIST
+        function loadInventory() {
+            const q = query(collection(db, "inventory"), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snap) => {
+                const list = document.getElementById('inventory-list');
+                list.innerHTML = "";
+                snap.forEach(d => {
+                    const item = d.data();
+                    list.innerHTML += `
+                        <tr>
+                            <td class="p-4"><img src="${item.image}" class="w-12 h-12 rounded object-cover"></td>
+                            <td class="p-4 font-bold">${item.name}<br><span class="text-xs text-slate-400">${item.code}</span></td>
+                            <td class="p-4">${item.type}<br><span class="text-emerald-600">$${item.price}</span></td>
+                            <td class="p-4 uppercase text-[10px] font-bold ${item.status === 'sold' ? 'text-red-500' : 'text-green-500'}">${item.status}</td>
+                            <td class="p-4 flex gap-2">
+                                <button onclick="window.setStatus('${d.id}', 'in stock')" class="bg-slate-100 p-1 text-[10px] rounded">Stock</button>
+                                <button onclick="window.setStatus('${d.id}', 'sold')" class="bg-black text-white p-1 text-[10px] rounded">Sold</button>
+                                <button onclick="window.delItem('${d.id}')" class="text-red-400 text-[10px]">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        window.setStatus = async (id, s) => await updateDoc(doc(db, "inventory", id), { status: s });
+        window.delItem = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "inventory", id)); };
+
+        // PDF
+        document.getElementById('download-sold-pdf').onclick = () => {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            const rows = [];
+            document.querySelectorAll('#inventory-list tr').forEach(tr => {
+                if(tr.cells[3].innerText.toLowerCase() === 'sold') {
+                    rows.push([tr.cells[1].innerText.split('\n')[0], tr.cells[1].innerText.split('\n')[1], tr.cells[2].innerText.split('\n')[1]]);
+                }
+            });
+            pdf.text("Real Stitch Sold Items", 14, 15);
+            pdf.autoTable({ head: [['Name', 'Code', 'Price']], body: rows, startY: 20 });
+            pdf.save("sold_list.pdf");
+        };
+    </script>
+</body>
+</html>
