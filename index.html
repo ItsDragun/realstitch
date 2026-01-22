@@ -3,60 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Stitch - Inventory</title>
+    <title>Real Stitch | Inventory</title>
+    
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-</head>
-<body class="bg-slate-50 text-slate-900">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
 
-    <div id="auth-screen" class="flex flex-col items-center justify-center h-screen bg-indigo-900 text-white">
-        <h1 class="text-4xl font-bold mb-6">Real Stitch</h1>
-        <button id="login-btn" class="bg-white text-indigo-900 px-8 py-3 rounded-full font-bold shadow-lg">Sign in with Google</button>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+        }
+
+        .table-row-hover:hover {
+            background: rgba(241, 245, 249, 0.5);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div id="auth-screen" class="flex flex-col items-center justify-center h-screen bg-[#0f172a] text-white">
+        <div class="p-10 text-center scale-up-center">
+            <h1 class="text-6xl font-extrabold tracking-tighter mb-2 italic">REAL <span class="text-indigo-500">STITCH</span></h1>
+            <p class="text-slate-400 mb-10 tracking-widest uppercase text-sm">Tailored Inventory Excellence</p>
+            <button id="login-btn" class="bg-white text-slate-900 px-10 py-4 rounded-full font-bold shadow-2xl flex items-center gap-3 mx-auto hover:bg-indigo-50 transition-all">
+                <img src="https://www.google.com/favicon.ico" class="w-5 h-5"> 
+                Continue with Google
+            </button>
+        </div>
     </div>
 
-    <div id="dashboard" class="hidden max-w-6xl mx-auto p-6">
-        <div class="flex justify-between items-center mb-8">
-            <h2 class="text-2xl font-bold">Real Stitch Catalog</h2>
-            <button id="logout-btn" class="text-red-500 font-bold">Logout</button>
-        </div>
-
-        <form id="inventory-form" class="bg-white p-6 rounded-xl shadow-md grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-            <input type="text" id="item-name" placeholder="Item Name" class="border p-3 rounded" required>
-            <input type="text" id="item-code" placeholder="Item Code" class="border p-3 rounded" required>
-            <div class="flex gap-2">
-                <select id="item-type-select" class="border p-3 rounded flex-1">
-                    <option value="">Select Type</option>
-                </select>
-                <button type="button" id="add-type-btn" class="bg-indigo-600 text-white px-4 rounded font-bold">+</button>
+    <div id="dashboard" class="hidden">
+        <nav class="sticky top-0 z-50 glass-card border-b border-slate-200 px-6 py-4 mb-8">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold italic">RS</div>
+                    <span class="text-xl font-extrabold tracking-tight">REAL STITCH</span>
+                </div>
+                <button id="logout-btn" class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-rose-50 hover:text-rose-600 transition-colors">Logout</button>
             </div>
-            <input type="number" id="item-price" placeholder="Price ($)" class="border p-3 rounded" required>
-            <input type="file" id="item-image" accept="image/*" class="p-2 border rounded col-span-full">
-            <button type="submit" id="submit-btn" class="bg-indigo-600 text-white p-4 rounded-lg font-bold col-span-full">Add to Inventory</button>
-        </form>
+        </nav>
 
-        <div class="flex justify-between mb-4">
-            <h3 class="text-xl font-bold">Inventory List</h3>
-            <button id="download-sold-pdf" class="bg-emerald-600 text-white px-4 py-2 rounded font-bold">Download Sold PDF</button>
-        </div>
+        <main class="max-w-7xl mx-auto px-6 pb-20">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-1">
+                    <div class="glass-card p-8 rounded-3xl shadow-xl sticky top-28">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                            <span class="w-2 h-6 bg-indigo-500 rounded-full"></span> New Entry
+                        </h3>
+                        <form id="inventory-form" class="space-y-5">
+                            <div>
+                                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Item Name</label>
+                                <input type="text" id="item-name" placeholder="e.g. Silk Blazer" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all" required>
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Serial/Code</label>
+                                <input type="text" id="item-code" placeholder="RS-001" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all" required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Category</label>
+                                    <div class="flex gap-1">
+                                        <select id="item-type-select" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
+                                            <option value="">Select</option>
+                                        </select>
+                                        <button type="button" id="add-type-btn" class="bg-indigo-100 text-indigo-600 px-3 rounded-xl font-bold">+</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Price</label>
+                                    <input type="number" id="item-price" placeholder="$" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Product Photo</label>
+                                <input type="file" id="item-image" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                            </div>
+                            <button type="submit" id="submit-btn" class="w-full btn-gradient text-white p-4 rounded-2xl font-bold mt-4">Save to Collection</button>
+                        </form>
+                    </div>
+                </div>
 
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <table class="w-full text-left">
-                <thead class="bg-slate-100 text-xs uppercase">
-                    <tr>
-                        <th class="p-4">Image</th>
-                        <th class="p-4">Item Details</th>
-                        <th class="p-4">Type/Price</th>
-                        <th class="p-4">Status</th>
-                        <th class="p-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="inventory-list" class="divide-y"></tbody>
-            </table>
-        </div>
+                <div class="lg:col-span-2">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h3 class="text-3xl font-extrabold tracking-tight">Master Catalog</h3>
+                            <p class="text-slate-500 text-sm">Manage your stock levels and sales.</p>
+                        </div>
+                        <button id="download-sold-pdf" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-100 transition-all flex items-center gap-2">
+                            PDF Export
+                        </button>
+                    </div>
+
+                    <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                                <tr>
+                                    <th class="p-5">Visual</th>
+                                    <th class="p-5">Product Details</th>
+                                    <th class="p-5">Pricing</th>
+                                    <th class="p-5">Status</th>
+                                    <th class="p-5 text-right">Control</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-list" class="divide-y divide-slate-100">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script type="module">
+        // [PASTE YOUR FIREBASE LOGIC HERE - THE CODE REMAINS THE SAME AS PREVIOUS]
+        // (Ensure window.setStatus and window.delItem are defined as before)
+        
+        // --- KEEPING THE LOGIC IMPORTED FROM PREVIOUS STEP ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
@@ -75,7 +164,6 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // AUTH
         document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
         document.getElementById('logout-btn').onclick = () => signOut(auth);
 
@@ -91,11 +179,10 @@
             }
         });
 
-        // FIX: LOAD TYPES
         function loadTypes() {
             onSnapshot(collection(db, "types"), (snap) => {
                 const select = document.getElementById('item-type-select');
-                select.innerHTML = '<option value="">Select Type</option>';
+                select.innerHTML = '<option value="">Select</option>';
                 snap.forEach(d => {
                     select.innerHTML += `<option value="${d.data().name}">${d.data().name}</option>`;
                 });
@@ -107,7 +194,6 @@
             if (name) await addDoc(collection(db, "types"), { name });
         };
 
-        // IMAGE CONVERTER (No Storage Needed)
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -115,11 +201,10 @@
             reader.onerror = error => reject(error);
         });
 
-        // SUBMIT
         document.getElementById('inventory-form').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
-            btn.innerText = "Saving...";
+            btn.innerText = "Processing...";
             btn.disabled = true;
 
             const file = document.getElementById('item-image').files[0];
@@ -136,12 +221,11 @@
                 createdAt: new Date()
             });
 
-            btn.innerText = "Add to Inventory";
+            btn.innerText = "Save to Collection";
             btn.disabled = false;
             e.target.reset();
         };
 
-        // LOAD LIST
         function loadInventory() {
             const q = query(collection(db, "inventory"), orderBy("createdAt", "desc"));
             onSnapshot(q, (snap) => {
@@ -150,15 +234,35 @@
                 snap.forEach(d => {
                     const item = d.data();
                     list.innerHTML += `
-                        <tr>
-                            <td class="p-4"><img src="${item.image}" class="w-12 h-12 rounded object-cover"></td>
-                            <td class="p-4 font-bold">${item.name}<br><span class="text-xs text-slate-400">${item.code}</span></td>
-                            <td class="p-4">${item.type}<br><span class="text-emerald-600">$${item.price}</span></td>
-                            <td class="p-4 uppercase text-[10px] font-bold ${item.status === 'sold' ? 'text-red-500' : 'text-green-500'}">${item.status}</td>
-                            <td class="p-4 flex gap-2">
-                                <button onclick="window.setStatus('${d.id}', 'in stock')" class="bg-slate-100 p-1 text-[10px] rounded">Stock</button>
-                                <button onclick="window.setStatus('${d.id}', 'sold')" class="bg-black text-white p-1 text-[10px] rounded">Sold</button>
-                                <button onclick="window.delItem('${d.id}')" class="text-red-400 text-[10px]">Delete</button>
+                        <tr class="table-row-hover transition-colors">
+                            <td class="p-5">
+                                <div class="w-16 h-16 rounded-2xl border-2 border-white shadow-sm overflow-hidden bg-slate-100">
+                                    <img src="${item.image || 'https://via.placeholder.com/64'}" class="w-full h-full object-cover">
+                                </div>
+                            </td>
+                            <td class="p-5">
+                                <div class="font-bold text-slate-800">${item.name}</div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Code: ${item.code}</div>
+                            </td>
+                            <td class="p-5">
+                                <div class="text-xs font-semibold text-slate-500">${item.type}</div>
+                                <div class="text-indigo-600 font-bold">$${item.price}</div>
+                            </td>
+                            <td class="p-5">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${item.status === 'sold' ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}">
+                                    ${item.status}
+                                </span>
+                            </td>
+                            <td class="p-5 text-right">
+                                <div class="flex justify-end gap-2">
+                                    <button onclick="window.setStatus('${d.id}', 'in stock')" class="hover:bg-indigo-50 p-2 rounded-lg transition-colors text-indigo-600 font-bold text-[10px]">STOCK</button>
+                                    <button onclick="window.setStatus('${d.id}', 'sold')" class="bg-slate-800 text-white px-3 py-1 rounded-lg text-[10px] font-bold">SOLD</button>
+                                    <button onclick="window.delItem('${d.id}')" class="text-slate-300 hover:text-rose-500 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -167,21 +271,34 @@
         }
 
         window.setStatus = async (id, s) => await updateDoc(doc(db, "inventory", id), { status: s });
-        window.delItem = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "inventory", id)); };
+        window.delItem = async (id) => { if(confirm("Permanently remove this item?")) await deleteDoc(doc(db, "inventory", id)); };
 
-        // PDF
         document.getElementById('download-sold-pdf').onclick = () => {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
             const rows = [];
             document.querySelectorAll('#inventory-list tr').forEach(tr => {
-                if(tr.cells[3].innerText.toLowerCase() === 'sold') {
-                    rows.push([tr.cells[1].innerText.split('\n')[0], tr.cells[1].innerText.split('\n')[1], tr.cells[2].innerText.split('\n')[1]]);
+                if(tr.cells[3].innerText.trim().toLowerCase() === 'sold') {
+                    rows.push([
+                        tr.cells[1].querySelector('div').innerText, 
+                        tr.cells[1].querySelectorAll('div')[1].innerText.replace('Code: ', ''), 
+                        tr.cells[2].querySelectorAll('div')[1].innerText
+                    ]);
                 }
             });
-            pdf.text("Real Stitch Sold Items", 14, 15);
-            pdf.autoTable({ head: [['Name', 'Code', 'Price']], body: rows, startY: 20 });
-            pdf.save("sold_list.pdf");
+            pdf.setFontSize(22);
+            pdf.text("REAL STITCH", 14, 20);
+            pdf.setFontSize(12);
+            pdf.setTextColor(100);
+            pdf.text("Sold Items Inventory Report", 14, 28);
+            pdf.autoTable({ 
+                head: [['Product Name', 'Serial Code', 'Sold Price']], 
+                body: rows, 
+                startY: 35,
+                headStyles: { fillColor: [79, 70, 229] },
+                alternateRowStyles: { fillColor: [248, 250, 252] }
+            });
+            pdf.save("RealStitch_Sales_Report.pdf");
         };
     </script>
 </body>
