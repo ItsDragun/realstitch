@@ -78,67 +78,190 @@
                 
                 <div class="lg:col-span-1">
                     <div class="glass-card p-8 rounded-3xl shadow-xl sticky top-28">
-                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
-                            <span class="w-2 h-6 bg-indigo-500 rounded-full"></span> New Entry
-                        </h3>
-                        <form id="inventory-form" class="space-y-5">
-                            <div>
-                                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Item Name</label>
-                                <input type="text" id="item-name" placeholder="e.g. Silk Blazer" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all" required>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Serial/Code</label>
-                                <input type="text" id="item-code" placeholder="RS-001" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all" required>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
+                        <div class="flex gap-2 mb-6">
+                            <button id="tab-batch" class="flex-1 py-2 px-4 rounded-xl font-bold text-sm transition-all bg-indigo-500 text-white">Batch Mgmt</button>
+                            <button id="tab-item" class="flex-1 py-2 px-4 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-600">New Item</button>
+                        </div>
+
+                        <!-- BATCH MANAGEMENT FORM -->
+                        <div id="batch-form-container">
+                            <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                                <span class="w-2 h-6 bg-indigo-500 rounded-full"></span> Batch Management
+                            </h3>
+                            <form id="batch-form" class="space-y-5">
                                 <div>
-                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Category</label>
-                                    <div class="flex gap-1">
-                                        <select id="item-type-select" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
-                                            <option value="">Select</option>
-                                        </select>
-                                        <button type="button" id="add-type-btn" class="bg-indigo-100 text-indigo-600 px-3 rounded-xl font-bold">+</button>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Batch Name</label>
+                                    <input type="text" id="batch-name" placeholder="e.g. Batch 003" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all" required>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Total Shirts</label>
+                                    <input type="number" id="batch-total" placeholder="50" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Long Sleeve</label>
+                                        <input type="number" id="batch-long" placeholder="0" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
                                     </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Short Sleeve</label>
+                                        <input type="number" id="batch-short" placeholder="0" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Plain</label>
+                                        <input type="number" id="batch-plain" placeholder="0" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Patterned</label>
+                                        <input type="number" id="batch-patterned" placeholder="0" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Custom Made</label>
+                                    <input type="number" id="batch-custom" placeholder="0" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
+                                </div>
+                                <button type="submit" class="w-full btn-gradient text-white p-4 rounded-2xl font-bold mt-4">Create Batch</button>
+                            </form>
+                        </div>
+
+                        <!-- ITEM FORM (ORIGINAL) -->
+                        <div id="item-form-container" class="hidden">
+                            <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                                <span class="w-2 h-6 bg-indigo-500 rounded-full"></span> New Entry
+                            </h3>
+                            <form id="inventory-form" class="space-y-5">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Select Batch</label>
+                                    <select id="item-batch" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
+                                        <option value="">Select Batch</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Item Name</label>
+                                    <input type="text" id="item-name" placeholder="e.g. Silk Blazer" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all" required>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Serial/Code</label>
+                                    <input type="text" id="item-code" placeholder="RS-001" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all" required>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Sleeve Type</label>
+                                        <select id="item-sleeve" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
+                                            <option value="Long Sleeve">Long Sleeve</option>
+                                            <option value="Short Sleeve">Short Sleeve</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Material</label>
+                                        <select id="item-material" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
+                                            <option value="Plain">Plain</option>
+                                            <option value="Patterned">Patterned</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Custom Made?</label>
+                                    <select id="item-custom" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase ml-1">Price</label>
                                     <input type="number" id="item-price" placeholder="$" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
                                 </div>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Product Photo</label>
-                                <input type="file" id="item-image" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                            </div>
-                            <button type="submit" id="submit-btn" class="w-full btn-gradient text-white p-4 rounded-2xl font-bold mt-4">Save to Collection</button>
-                        </form>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Product Photo</label>
+                                    <input type="file" id="item-image" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                </div>
+                                <button type="submit" id="submit-btn" class="w-full btn-gradient text-white p-4 rounded-2xl font-bold mt-4">Save to Collection</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
                 <div class="lg:col-span-2">
-                    <div class="flex justify-between items-end mb-6">
-                        <div>
-                            <h3 class="text-3xl font-extrabold tracking-tight">Master Catalog</h3>
-                            <p class="text-slate-500 text-sm">Manage your stock levels and sales.</p>
-                        </div>
-                        <button id="download-sold-pdf" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-100 transition-all flex items-center gap-2">
-                            PDF Export
-                        </button>
+                    <div class="flex gap-2 mb-6">
+                        <button id="view-batches" class="flex-1 bg-indigo-100 text-indigo-600 px-5 py-2.5 rounded-xl font-bold text-sm transition-all">View Batches</button>
+                        <button id="view-expenses" class="flex-1 bg-purple-100 text-purple-600 px-5 py-2.5 rounded-xl font-bold text-sm transition-all">Expenses</button>
+                        <button id="view-tailors" class="flex-1 bg-blue-100 text-blue-600 px-5 py-2.5 rounded-xl font-bold text-sm transition-all">Tailors</button>
+                        <button id="view-analytics" class="flex-1 bg-amber-100 text-amber-600 px-5 py-2.5 rounded-xl font-bold text-sm transition-all">Analytics</button>
+                        <button id="view-catalog" class="flex-1 bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all">Catalog</button>
                     </div>
 
-                    <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                                <tr>
-                                    <th class="p-5">Visual</th>
-                                    <th class="p-5">Product Details</th>
-                                    <th class="p-5">Pricing</th>
-                                    <th class="p-5">Status</th>
-                                    <th class="p-5 text-right">Control</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventory-list" class="divide-y divide-slate-100">
+                    <!-- CATALOG VIEW (ORIGINAL) -->
+                    <div id="catalog-view">
+                        <div class="flex justify-between items-end mb-6">
+                            <div>
+                                <h3 class="text-3xl font-extrabold tracking-tight">Master Catalog</h3>
+                                <p class="text-slate-500 text-sm">Manage your stock levels and sales.</p>
+                            </div>
+                            <button id="download-sold-pdf" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-100 transition-all flex items-center gap-2">
+                                PDF Export
+                            </button>
+                        </div>
+
+                        <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                                    <tr>
+                                        <th class="p-5">Visual</th>
+                                        <th class="p-5">Product Details</th>
+                                        <th class="p-5">Pricing</th>
+                                        <th class="p-5">Status</th>
+                                        <th class="p-5 text-right">Control</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-list" class="divide-y divide-slate-100">
                                 </tbody>
-                        </table>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- BATCHES VIEW -->
+                    <div id="batches-view" class="hidden">
+                        <div class="flex justify-between items-end mb-6">
+                            <div>
+                                <h3 class="text-3xl font-extrabold tracking-tight">Production Batches</h3>
+                                <p class="text-slate-500 text-sm">Track batch production and costs.</p>
+                            </div>
+                        </div>
+                        <div id="batches-list" class="space-y-4"></div>
+                    </div>
+
+                    <!-- EXPENSES VIEW -->
+                    <div id="expenses-view" class="hidden">
+                        <div class="flex justify-between items-end mb-6">
+                            <div>
+                                <h3 class="text-3xl font-extrabold tracking-tight">Batch Expenses</h3>
+                                <p class="text-slate-500 text-sm">Track all production costs.</p>
+                            </div>
+                            <button id="add-expense-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm">+ Add Expense</button>
+                        </div>
+                        <div id="expenses-list" class="glass-card rounded-3xl shadow-xl p-6"></div>
+                    </div>
+
+                    <!-- TAILORS VIEW -->
+                    <div id="tailors-view" class="hidden">
+                        <div class="flex justify-between items-end mb-6">
+                            <div>
+                                <h3 class="text-3xl font-extrabold tracking-tight">Tailor Management</h3>
+                                <p class="text-slate-500 text-sm">Track tailoring assignments and payments.</p>
+                            </div>
+                            <button id="add-tailor-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm">+ Add Task</button>
+                        </div>
+                        <div id="tailors-list" class="space-y-4"></div>
+                    </div>
+
+                    <!-- ANALYTICS VIEW -->
+                    <div id="analytics-view" class="hidden">
+                        <div class="mb-6">
+                            <h3 class="text-3xl font-extrabold tracking-tight">Analytics Dashboard</h3>
+                            <p class="text-slate-500 text-sm">Unit costs and performance metrics.</p>
+                        </div>
+                        <div id="analytics-content" class="space-y-6"></div>
                     </div>
                 </div>
             </div>
@@ -148,7 +271,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDr51BYzXFgalvJAAB7qkWaOUHdYmt_btw",
@@ -173,6 +296,9 @@
                 document.getElementById('dashboard').classList.remove('hidden');
                 loadTypes();
                 loadInventory();
+                loadBatches();
+                setupTabSwitching();
+                setupViewSwitching();
             } else {
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('dashboard').classList.add('hidden');
@@ -182,17 +308,101 @@
         function loadTypes() {
             onSnapshot(collection(db, "types"), (snap) => {
                 const select = document.getElementById('item-type-select');
-                select.innerHTML = '<option value="">Select</option>';
-                snap.forEach(d => {
-                    select.innerHTML += `<option value="${d.data().name}">${d.data().name}</option>`;
-                });
+                if (select) {
+                    select.innerHTML = '<option value="">Select</option>';
+                    snap.forEach(d => {
+                        select.innerHTML += `<option value="${d.data().name}">${d.data().name}</option>`;
+                    });
+                }
             });
         }
 
-        document.getElementById('add-type-btn').onclick = async () => {
-            const name = prompt("New Item Type:");
-            if (name) await addDoc(collection(db, "types"), { name });
+        // TAB SWITCHING (Batch vs Item Form)
+        function setupTabSwitching() {
+            const tabBatch = document.getElementById('tab-batch');
+            const tabItem = document.getElementById('tab-item');
+            const batchContainer = document.getElementById('batch-form-container');
+            const itemContainer = document.getElementById('item-form-container');
+
+            tabBatch.onclick = () => {
+                tabBatch.classList.add('bg-indigo-500', 'text-white');
+                tabBatch.classList.remove('bg-slate-100', 'text-slate-600');
+                tabItem.classList.remove('bg-indigo-500', 'text-white');
+                tabItem.classList.add('bg-slate-100', 'text-slate-600');
+                batchContainer.classList.remove('hidden');
+                itemContainer.classList.add('hidden');
+            };
+
+            tabItem.onclick = () => {
+                tabItem.classList.add('bg-indigo-500', 'text-white');
+                tabItem.classList.remove('bg-slate-100', 'text-slate-600');
+                tabBatch.classList.remove('bg-indigo-500', 'text-white');
+                tabBatch.classList.add('bg-slate-100', 'text-slate-600');
+                itemContainer.classList.remove('hidden');
+                batchContainer.classList.add('hidden');
+            };
+        }
+
+        // VIEW SWITCHING (Catalog, Batches, Expenses, Tailors, Analytics)
+        function setupViewSwitching() {
+            const views = {
+                'view-catalog': 'catalog-view',
+                'view-batches': 'batches-view',
+                'view-expenses': 'expenses-view',
+                'view-tailors': 'tailors-view',
+                'view-analytics': 'analytics-view'
+            };
+
+            Object.keys(views).forEach(btnId => {
+                document.getElementById(btnId).onclick = () => {
+                    Object.values(views).forEach(v => document.getElementById(v).classList.add('hidden'));
+                    document.getElementById(views[btnId]).classList.remove('hidden');
+                    
+                    // Update button styles
+                    Object.keys(views).forEach(id => {
+                        const btn = document.getElementById(id);
+                        btn.classList.remove('bg-slate-800', 'text-white');
+                        if (id === btnId) {
+                            btn.classList.add('bg-slate-800', 'text-white');
+                        }
+                    });
+
+                    // Load specific view data
+                    if (btnId === 'view-batches') loadBatchesView();
+                    if (btnId === 'view-expenses') loadExpensesView();
+                    if (btnId === 'view-tailors') loadTailorsView();
+                    if (btnId === 'view-analytics') loadAnalyticsView();
+                };
+            });
+        }
+
+        // BATCH FORM SUBMISSION
+        document.getElementById('batch-form').onsubmit = async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "batches"), {
+                name: document.getElementById('batch-name').value,
+                totalShirts: parseInt(document.getElementById('batch-total').value),
+                longSleeve: parseInt(document.getElementById('batch-long').value) || 0,
+                shortSleeve: parseInt(document.getElementById('batch-short').value) || 0,
+                plain: parseInt(document.getElementById('batch-plain').value) || 0,
+                patterned: parseInt(document.getElementById('batch-patterned').value) || 0,
+                customMade: parseInt(document.getElementById('batch-custom').value) || 0,
+                createdAt: new Date()
+            });
+            e.target.reset();
+            alert('Batch created successfully!');
         };
+
+        // LOAD BATCHES INTO DROPDOWN
+        function loadBatches() {
+            onSnapshot(collection(db, "batches"), (snap) => {
+                const select = document.getElementById('item-batch');
+                select.innerHTML = '<option value="">Select Batch</option>';
+                snap.forEach(d => {
+                    select.innerHTML += `<option value="${d.id}">${d.data().name}</option>`;
+                });
+            });
+        }
 
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -212,12 +422,15 @@
             if (file) imageBase64 = await toBase64(file);
 
             await addDoc(collection(db, "inventory"), {
+                batchId: document.getElementById('item-batch').value,
                 name: document.getElementById('item-name').value,
                 code: document.getElementById('item-code').value,
-                type: document.getElementById('item-type-select').value,
+                sleeveType: document.getElementById('item-sleeve').value,
+                material: document.getElementById('item-material').value,
+                customMade: document.getElementById('item-custom').value,
                 price: document.getElementById('item-price').value,
                 image: imageBase64,
-                status: 'in stock',
+                status: 'available',
                 createdAt: new Date()
             });
 
@@ -245,17 +458,18 @@
                                 <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Code: ${item.code}</div>
                             </td>
                             <td class="p-5">
-                                <div class="text-xs font-semibold text-slate-500">${item.type}</div>
+                                <div class="text-xs font-semibold text-slate-500">${item.sleeveType || ''} ${item.material || ''}</div>
                                 <div class="text-indigo-600 font-bold">$${item.price}</div>
                             </td>
                             <td class="p-5">
-                                <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${item.status === 'sold' ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${item.status === 'sold' ? 'bg-rose-100 text-rose-600' : item.status === 'delivered' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}">
                                     ${item.status}
                                 </span>
                             </td>
                             <td class="p-5 text-right">
                                 <div class="flex justify-end gap-2">
-                                    <button onclick="window.setStatus('${d.id}', 'in stock')" class="hover:bg-indigo-50 p-2 rounded-lg transition-colors text-indigo-600 font-bold text-[10px]">STOCK</button>
+                                    <button onclick="window.setStatus('${d.id}', 'available')" class="hover:bg-emerald-50 p-2 rounded-lg transition-colors text-emerald-600 font-bold text-[10px]">AVAIL</button>
+                                    <button onclick="window.setStatus('${d.id}', 'delivered')" class="hover:bg-amber-50 p-2 rounded-lg transition-colors text-amber-600 font-bold text-[10px]">DELIV</button>
                                     <button onclick="window.setStatus('${d.id}', 'sold')" class="bg-slate-800 text-white px-3 py-1 rounded-lg text-[10px] font-bold">SOLD</button>
                                     <button onclick="window.delItem('${d.id}')" class="text-slate-300 hover:text-rose-500 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -272,6 +486,266 @@
 
         window.setStatus = async (id, s) => await updateDoc(doc(db, "inventory", id), { status: s });
         window.delItem = async (id) => { if(confirm("Permanently remove this item?")) await deleteDoc(doc(db, "inventory", id)); };
+
+        // BATCHES VIEW
+        function loadBatchesView() {
+            onSnapshot(query(collection(db, "batches"), orderBy("createdAt", "desc")), (snap) => {
+                const list = document.getElementById('batches-list');
+                list.innerHTML = "";
+                snap.forEach(d => {
+                    const batch = d.data();
+                    list.innerHTML += `
+                        <div class="glass-card p-6 rounded-3xl shadow-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="text-xl font-bold">${batch.name}</h4>
+                                    <p class="text-sm text-slate-500">Total: ${batch.totalShirts} shirts</p>
+                                    <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
+                                        <div class="bg-blue-50 p-2 rounded-lg"><strong>Long:</strong> ${batch.longSleeve}</div>
+                                        <div class="bg-purple-50 p-2 rounded-lg"><strong>Short:</strong> ${batch.shortSleeve}</div>
+                                        <div class="bg-amber-50 p-2 rounded-lg"><strong>Plain:</strong> ${batch.plain}</div>
+                                        <div class="bg-pink-50 p-2 rounded-lg"><strong>Pattern:</strong> ${batch.patterned}</div>
+                                        <div class="bg-green-50 p-2 rounded-lg col-span-2"><strong>Custom:</strong> ${batch.customMade}</div>
+                                    </div>
+                                </div>
+                                <button onclick="window.viewBatchDetails('${d.id}')" class="bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-bold">Details</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.viewBatchDetails = (batchId) => {
+            alert('Batch details coming soon! ID: ' + batchId);
+        };
+
+        // EXPENSES VIEW
+        function loadExpensesView() {
+            onSnapshot(collection(db, "expenses"), (snap) => {
+                const list = document.getElementById('expenses-list');
+                const expensesByBatch = {};
+                
+                snap.forEach(d => {
+                    const exp = d.data();
+                    if (!expensesByBatch[exp.batchId]) {
+                        expensesByBatch[exp.batchId] = [];
+                    }
+                    expensesByBatch[exp.batchId].push({id: d.id, ...exp});
+                });
+
+                list.innerHTML = "";
+                Object.keys(expensesByBatch).forEach(batchId => {
+                    const total = expensesByBatch[batchId].reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+                    list.innerHTML += `
+                        <div class="mb-6">
+                            <h5 class="font-bold text-lg mb-2">Batch: ${batchId}</h5>
+                            <div class="space-y-2">
+                                ${expensesByBatch[batchId].map(e => `
+                                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+                                        <div>
+                                            <span class="font-semibold">${e.category}</span>
+                                            <span class="text-xs text-slate-500 ml-2">${new Date(e.date?.toDate()).toLocaleDateString()}</span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="font-bold text-indigo-600">${e.amount}</span>
+                                            <button onclick="window.delExpense('${e.id}')" class="text-rose-500 text-xs">Delete</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="mt-2 text-right font-bold text-lg">Total: ${total.toFixed(2)}</div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        document.getElementById('add-expense-btn').onclick = async () => {
+            const batchId = prompt("Batch ID:");
+            if (!batchId) return;
+            const category = prompt("Category (Material/Transport/Airtime/Waybill/Ironing/Mending/Other):");
+            if (!category) return;
+            const amount = prompt("Amount:");
+            if (!amount) return;
+
+            await addDoc(collection(db, "expenses"), {
+                batchId,
+                category,
+                amount: parseFloat(amount),
+                date: new Date()
+            });
+        };
+
+        window.delExpense = async (id) => {
+            if (confirm("Delete this expense?")) {
+                await deleteDoc(doc(db, "expenses", id));
+            }
+        };
+
+        // TAILORS VIEW
+        function loadTailorsView() {
+            onSnapshot(query(collection(db, "tailors"), orderBy("dateSent", "desc")), (snap) => {
+                const list = document.getElementById('tailors-list');
+                list.innerHTML = "";
+                snap.forEach(d => {
+                    const tailor = d.data();
+                    const dateSent = tailor.dateSent?.toDate();
+                    const promisedDate = tailor.promisedDate?.toDate();
+                    const receivedDate = tailor.receivedDate?.toDate();
+                    const isLate = receivedDate && promisedDate && receivedDate > promisedDate;
+
+                    list.innerHTML += `
+                        <div class="glass-card p-6 rounded-3xl shadow-lg">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-bold">${tailor.tailorName}</h4>
+                                    <p class="text-sm text-slate-500">Batch: ${tailor.batchId}</p>
+                                    <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
+                                        <div><strong>Item:</strong> ${tailor.itemType}</div>
+                                        <div><strong>Qty:</strong> ${tailor.quantity}</div>
+                                        <div><strong>Cost/Unit:</strong> ${tailor.costPerUnit}</div>
+                                        <div><strong>Total:</strong> ${(tailor.quantity * tailor.costPerUnit).toFixed(2)}</div>
+                                    </div>
+                                    <div class="mt-3 space-y-1 text-xs">
+                                        <div><strong>Sent:</strong> ${dateSent ? dateSent.toLocaleDateString() : 'N/A'}</div>
+                                        <div><strong>Promised:</strong> ${promisedDate ? promisedDate.toLocaleDateString() : 'N/A'}</div>
+                                        <div class="${isLate ? 'text-rose-600 font-bold' : ''}"><strong>Received:</strong> ${receivedDate ? receivedDate.toLocaleDateString() : 'Pending'}</div>
+                                        ${isLate ? '<div class="text-rose-600 font-bold">⚠ LATE DELIVERY</div>' : ''}
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${tailor.paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}">
+                                        ${tailor.paymentStatus}
+                                    </span>
+                                    <button onclick="window.updateTailorPayment('${d.id}', '${tailor.paymentStatus === 'Paid' ? 'Pending' : 'Paid'}')" class="bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs">Toggle</button>
+                                    <button onclick="window.markReceived('${d.id}')" class="bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs">Received</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        document.getElementById('add-tailor-btn').onclick = async () => {
+            const batchId = prompt("Batch ID:");
+            if (!batchId) return;
+            const tailorName = prompt("Tailor Name:");
+            if (!tailorName) return;
+            const itemType = prompt("Item Type (e.g., Long Sleeve):");
+            if (!itemType) return;
+            const quantity = prompt("Quantity:");
+            if (!quantity) return;
+            const costPerUnit = prompt("Cost per Unit:");
+            if (!costPerUnit) return;
+            const dateSent = prompt("Date Sent (YYYY-MM-DD):");
+            if (!dateSent) return;
+            const promisedDate = prompt("Promised Date (YYYY-MM-DD):");
+            if (!promisedDate) return;
+
+            await addDoc(collection(db, "tailors"), {
+                batchId,
+                tailorName,
+                itemType,
+                quantity: parseInt(quantity),
+                costPerUnit: parseFloat(costPerUnit),
+                dateSent: new Date(dateSent),
+                promisedDate: new Date(promisedDate),
+                receivedDate: null,
+                paymentStatus: 'Pending'
+            });
+        };
+
+        window.updateTailorPayment = async (id, status) => {
+            await updateDoc(doc(db, "tailors", id), { paymentStatus: status });
+        };
+
+        window.markReceived = async (id) => {
+            await updateDoc(doc(db, "tailors", id), { receivedDate: new Date() });
+        };
+
+        // ANALYTICS VIEW
+        async function loadAnalyticsView() {
+            const batchesSnap = await getDocs(collection(db, "batches"));
+            const expensesSnap = await getDocs(collection(db, "expenses"));
+            const tailorsSnap = await getDocs(collection(db, "tailors"));
+            const inventorySnap = await getDocs(collection(db, "inventory"));
+
+            const analytics = {};
+            
+            batchesSnap.forEach(d => {
+                const batch = d.data();
+                analytics[d.id] = {
+                    name: batch.name,
+                    totalShirts: batch.totalShirts,
+                    expenses: 0,
+                    tailorCosts: 0,
+                    itemsSold: 0,
+                    revenue: 0
+                };
+            });
+
+            expensesSnap.forEach(d => {
+                const exp = d.data();
+                if (analytics[exp.batchId]) {
+                    analytics[exp.batchId].expenses += parseFloat(exp.amount || 0);
+                }
+            });
+
+            tailorsSnap.forEach(d => {
+                const tailor = d.data();
+                if (analytics[tailor.batchId]) {
+                    analytics[tailor.batchId].tailorCosts += tailor.quantity * tailor.costPerUnit;
+                }
+            });
+
+            inventorySnap.forEach(d => {
+                const item = d.data();
+                if (analytics[item.batchId] && item.status === 'sold') {
+                    analytics[item.batchId].itemsSold++;
+                    analytics[item.batchId].revenue += parseFloat(item.price || 0);
+                }
+            });
+
+            const content = document.getElementById('analytics-content');
+            content.innerHTML = "";
+            
+            Object.keys(analytics).forEach(batchId => {
+                const data = analytics[batchId];
+                const totalCosts = data.expenses + data.tailorCosts;
+                const unitCost = data.totalShirts > 0 ? (totalCosts / data.totalShirts).toFixed(2) : 0;
+                const profit = data.revenue - (totalCosts * (data.itemsSold / data.totalShirts));
+
+                content.innerHTML += `
+                    <div class="glass-card p-6 rounded-3xl shadow-lg">
+                        <h4 class="text-xl font-bold mb-4">${data.name}</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-xl">
+                                <div class="text-xs text-slate-500 uppercase font-bold">Total Costs</div>
+                                <div class="text-2xl font-bold text-blue-600">${totalCosts.toFixed(2)}</div>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-xl">
+                                <div class="text-xs text-slate-500 uppercase font-bold">Unit Cost</div>
+                                <div class="text-2xl font-bold text-purple-600">${unitCost}</div>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-xl">
+                                <div class="text-xs text-slate-500 uppercase font-bold">Items Sold</div>
+                                <div class="text-2xl font-bold text-green-600">${data.itemsSold} / ${data.totalShirts}</div>
+                            </div>
+                            <div class="bg-amber-50 p-4 rounded-xl">
+                                <div class="text-xs text-slate-500 uppercase font-bold">Revenue</div>
+                                <div class="text-2xl font-bold text-amber-600">${data.revenue.toFixed(2)}</div>
+                            </div>
+                            <div class="bg-${profit >= 0 ? 'emerald' : 'rose'}-50 p-4 rounded-xl col-span-2">
+                                <div class="text-xs text-slate-500 uppercase font-bold">Profit/Loss</div>
+                                <div class="text-2xl font-bold text-${profit >= 0 ? 'emerald' : 'rose'}-600">${profit.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
         document.getElementById('download-sold-pdf').onclick = () => {
             const { jsPDF } = window.jspdf;
