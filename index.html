@@ -187,6 +187,18 @@
                                         </select>
                                     </div>
                                 </div>
+                                
+                                <!-- NEW: Multi-Source Materials -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Material Sources</label>
+                                        <button type="button" id="add-material-source" class="bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-indigo-600">+ Add Source</button>
+                                    </div>
+                                    <div id="material-sources-container" class="space-y-2">
+                                        <input type="text" class="material-source w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm" placeholder="Material Source 1">
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase ml-1">Custom Made?</label>
                                     <select id="item-custom" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
@@ -195,7 +207,7 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Price</label>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Selling Price</label>
                                     <input type="number" id="item-price" placeholder="$" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
                                 </div>
                                 <div>
@@ -289,6 +301,11 @@
                                         <option value="Other">Other</option>
                                     </select>
                                 </div>
+                                <!-- NEW: Custom Expense Name for "Other" -->
+                                <div id="custom-expense-name-container" class="hidden">
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Custom Expense Name</label>
+                                    <input type="text" id="custom-expense-name" placeholder="Enter expense name" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
+                                </div>
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase ml-1">Amount ($)</label>
                                     <input type="number" id="expense-amount" step="0.01" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
@@ -354,10 +371,38 @@
 
                     <!-- ANALYTICS VIEW -->
                     <div id="analytics-view" class="hidden">
-                        <div class="mb-6">
-                            <h3 class="text-3xl font-extrabold tracking-tight">Analytics Dashboard</h3>
-                            <p class="text-slate-500 text-sm">Unit costs and performance metrics.</p>
+                        <div class="mb-6 space-y-4">
+                            <div>
+                                <h3 class="text-3xl font-extrabold tracking-tight">Analytics Dashboard</h3>
+                                <p class="text-slate-500 text-sm">Unit costs and performance metrics.</p>
+                            </div>
+                            
+                            <!-- NEW: P&L Report Section -->
+                            <div class="glass-card p-6 rounded-3xl shadow-xl border-2 border-emerald-200">
+                                <div class="flex justify-between items-center mb-4">
+                                    <div>
+                                        <h4 class="text-xl font-bold text-emerald-900">Monthly P&L Report</h4>
+                                        <p class="text-xs text-slate-500">Automated on 1st of each month for tax reporting</p>
+                                    </div>
+                                    <button id="generate-pl-report" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm">Generate Report</button>
+                                </div>
+                                
+                                <!-- Date Range Picker for Custom Reports -->
+                                <div class="grid grid-cols-2 gap-4 mt-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Start Date</label>
+                                        <input type="date" id="pl-start-date" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg outline-none text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">End Date</label>
+                                        <input type="date" id="pl-end-date" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg outline-none text-sm">
+                                    </div>
+                                </div>
+                                
+                                <div id="pl-report-content" class="mt-4"></div>
+                            </div>
                         </div>
+                        
                         <div id="analytics-content" class="space-y-6"></div>
                     </div>
                 </div>
@@ -407,6 +452,7 @@
                             <li><strong>Transport:</strong> Travel expenses for material sourcing</li>
                             <li><strong>Waybill:</strong> Shipping costs from Aba to Lagos</li>
                             <li><strong>Ironing/Mending:</strong> Post-production costs</li>
+                            <li><strong>Other:</strong> Custom expense categories with your own names</li>
                         </ul>
                     </div>
 
@@ -442,6 +488,7 @@
                             <li><strong>Unit Cost:</strong> Total Costs ÷ Total Shirts</li>
                             <li><strong>Revenue:</strong> Sum of all sold items</li>
                             <li><strong>Profit/Loss:</strong> Revenue minus proportional costs</li>
+                            <li><strong>Monthly P&L:</strong> Automated reports on 1st of each month for tax</li>
                             <li>Track sales progress and tailor performance</li>
                         </ul>
                     </div>
@@ -453,6 +500,8 @@
                             <li>Add all expenses as they occur for accurate unit costs</li>
                             <li>Use the Analytics view to identify profitable batches</li>
                             <li>Export sold items to PDF for record keeping</li>
+                            <li>Add multiple material sources for complex items</li>
+                            <li>Generate custom P&L reports for specific date ranges</li>
                         </ul>
                     </div>
                 </div>
@@ -465,7 +514,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, query, orderBy, getDocs, where } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDr51BYzXFgalvJAAB7qkWaOUHdYmt_btw",
@@ -494,6 +543,9 @@
                 setupTabSwitching();
                 setupViewSwitching();
                 setupCatalogFilter();
+                setupMaterialSources();
+                setupExpenseCategory();
+                setupPLReport();
             } else {
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('dashboard').classList.add('hidden');
@@ -536,6 +588,167 @@
                 itemContainer.classList.remove('hidden');
                 batchContainer.classList.add('hidden');
             };
+        }
+
+        // NEW: Multi-Source Material Management
+        function setupMaterialSources() {
+            let sourceCount = 1;
+            document.getElementById('add-material-source').onclick = () => {
+                sourceCount++;
+                const container = document.getElementById('material-sources-container');
+                const newInput = document.createElement('div');
+                newInput.className = 'flex gap-2';
+                newInput.innerHTML = `
+                    <input type="text" class="material-source flex-1 bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm" placeholder="Material Source ${sourceCount}">
+                    <button type="button" class="remove-source bg-rose-500 text-white px-3 rounded-lg text-xs font-bold hover:bg-rose-600">Remove</button>
+                `;
+                container.appendChild(newInput);
+                
+                newInput.querySelector('.remove-source').onclick = () => {
+                    newInput.remove();
+                };
+            };
+        }
+
+        // NEW: Show/Hide Custom Expense Name
+        function setupExpenseCategory() {
+            const categorySelect = document.getElementById('expense-category');
+            const customNameContainer = document.getElementById('custom-expense-name-container');
+            
+            categorySelect.onchange = () => {
+                if (categorySelect.value === 'Other') {
+                    customNameContainer.classList.remove('hidden');
+                } else {
+                    customNameContainer.classList.add('hidden');
+                }
+            };
+        }
+
+        // NEW: P&L Report Generation
+        function setupPLReport() {
+            // Set default dates (previous month)
+            const today = new Date();
+            const firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            
+            document.getElementById('pl-start-date').valueAsDate = firstDayLastMonth;
+            document.getElementById('pl-end-date').valueAsDate = lastDayLastMonth;
+            
+            document.getElementById('generate-pl-report').onclick = generatePLReport;
+        }
+
+        async function generatePLReport() {
+            const startDate = new Date(document.getElementById('pl-start-date').value);
+            const endDate = new Date(document.getElementById('pl-end-date').value);
+            endDate.setHours(23, 59, 59, 999); // Include entire end date
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+            
+            const reportContent = document.getElementById('pl-report-content');
+            reportContent.innerHTML = '<div class="text-center py-4">Generating report...</div>';
+            
+            // Get all sold items in date range
+            const inventorySnap = await getDocs(collection(db, "inventory"));
+            const soldItems = [];
+            let totalRevenue = 0;
+            
+            inventorySnap.forEach(d => {
+                const item = d.data();
+                if (item.status === 'sold' && item.soldDate) {
+                    const soldDate = item.soldDate.toDate();
+                    if (soldDate >= startDate && soldDate <= endDate) {
+                        soldItems.push({...item, id: d.id});
+                        totalRevenue += parseFloat(item.price || 0);
+                    }
+                }
+            });
+            
+            // Get all expenses
+            const expensesSnap = await getDocs(collection(db, "expenses"));
+            let totalExpenses = 0;
+            const expensesByBatch = {};
+            
+            expensesSnap.forEach(d => {
+                const exp = d.data();
+                const amount = parseFloat(exp.amount || 0);
+                totalExpenses += amount;
+                if (!expensesByBatch[exp.batchId]) {
+                    expensesByBatch[exp.batchId] = 0;
+                }
+                expensesByBatch[exp.batchId] += amount;
+            });
+            
+            // Get tailor costs
+            const tailorsSnap = await getDocs(collection(db, "tailors"));
+            let totalTailorCosts = 0;
+            const tailorCostsByBatch = {};
+            
+            tailorsSnap.forEach(d => {
+                const tailor = d.data();
+                const cost = tailor.quantity * tailor.costPerUnit;
+                totalTailorCosts += cost;
+                if (!tailorCostsByBatch[tailor.batchId]) {
+                    tailorCostsByBatch[tailor.batchId] = 0;
+                }
+                tailorCostsByBatch[tailor.batchId] += cost;
+            });
+            
+            // Calculate proportional costs for sold items
+            const batchesSnap = await getDocs(collection(db, "batches"));
+            const batches = {};
+            batchesSnap.forEach(d => {
+                batches[d.id] = d.data();
+            });
+            
+            let proportionalCosts = 0;
+            soldItems.forEach(item => {
+                const batchId = item.batchId;
+                if (batches[batchId]) {
+                    const batchExpenses = (expensesByBatch[batchId] || 0) + (tailorCostsByBatch[batchId] || 0);
+                    const unitCost = batchExpenses / batches[batchId].totalShirts;
+                    proportionalCosts += unitCost;
+                }
+            });
+            
+            const netProfit = totalRevenue - proportionalCosts;
+            
+            reportContent.innerHTML = `
+                <div class="bg-white p-6 rounded-xl border-2 border-slate-200">
+                    <div class="text-center mb-6">
+                        <h5 class="text-lg font-bold text-slate-700">Profit & Loss Statement</h5>
+                        <p class="text-xs text-slate-500">${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="font-semibold">Items Sold:</span>
+                            <span class="font-bold">${soldItems.length}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="font-semibold">Total Revenue:</span>
+                            <span class="font-bold text-emerald-600">${totalRevenue.toFixed(2)}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="font-semibold">Cost of Goods Sold:</span>
+                            <span class="font-bold text-rose-600">-${proportionalCosts.toFixed(2)}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center bg-${netProfit >= 0 ? 'emerald' : 'rose'}-50 p-4 rounded-lg mt-4">
+                            <span class="font-bold text-lg">Net ${netProfit >= 0 ? 'Profit' : 'Loss'}:</span>
+                            <span class="font-bold text-2xl text-${netProfit >= 0 ? 'emerald' : 'rose'}-600">${Math.abs(netProfit).toFixed(2)}</span>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <p class="text-xs text-blue-800"><strong>Tax Note:</strong> This report shows profit from items sold in the selected period. Consult your tax advisor for proper tax calculation.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         // VIEW SWITCHING (Catalog, Batches, Expenses, Tailors, Analytics)
@@ -622,22 +835,34 @@
             let imageBase64 = "";
             if (file) imageBase64 = await toBase64(file);
 
+            // Collect all material sources
+            const materialSources = Array.from(document.querySelectorAll('.material-source'))
+                .map(input => input.value)
+                .filter(val => val.trim() !== '');
+
             await addDoc(collection(db, "inventory"), {
                 batchId: document.getElementById('item-batch').value,
                 name: document.getElementById('item-name').value,
                 code: document.getElementById('item-code').value,
                 sleeveType: document.getElementById('item-sleeve').value,
                 material: document.getElementById('item-material').value,
+                materialSources: materialSources, // NEW: Store multiple sources
                 customMade: document.getElementById('item-custom').value,
                 price: document.getElementById('item-price').value,
                 image: imageBase64,
                 status: 'available',
-                createdAt: new Date()
+                createdAt: new Date(),
+                soldDate: null
             });
 
             btn.innerText = "Save to Collection";
             btn.disabled = false;
             e.target.reset();
+            
+            // Reset material sources to one input
+            document.getElementById('material-sources-container').innerHTML = `
+                <input type="text" class="material-source w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm" placeholder="Material Source 1">
+            `;
         };
 
         function loadInventory() {
@@ -705,6 +930,11 @@
                                                 <td class="p-5">
                                                     <div class="font-bold text-slate-800">${item.name}</div>
                                                     <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Code: ${item.code}</div>
+                                                    ${item.materialSources && item.materialSources.length > 0 ? `
+                                                        <div class="text-[9px] text-indigo-600 mt-1">
+                                                            Sources: ${item.materialSources.join(', ')}
+                                                        </div>
+                                                    ` : ''}
                                                 </td>
                                                 <td class="p-5">
                                                     <div class="text-xs font-semibold text-slate-500">${item.sleeveType || ''} ${item.material || ''}</div>
@@ -756,7 +986,14 @@
             }
         }
 
-        window.setStatus = async (id, s) => await updateDoc(doc(db, "inventory", id), { status: s });
+        window.setStatus = async (id, s) => {
+            const updateData = { status: s };
+            if (s === 'sold') {
+                updateData.soldDate = new Date();
+            }
+            await updateDoc(doc(db, "inventory", id), updateData);
+        };
+        
         window.delItem = async (id) => { if(confirm("Permanently remove this item?")) await deleteDoc(doc(db, "inventory", id)); };
 
         // BATCHES VIEW
@@ -816,7 +1053,7 @@
                                 ${expensesByBatch[batchId].map(e => `
                                     <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
                                         <div>
-                                            <span class="font-semibold">${e.category}</span>
+                                            <span class="font-semibold">${e.customName || e.category}</span>
                                             <span class="text-xs text-slate-500 ml-2">${new Date(e.date?.toDate()).toLocaleDateString()}</span>
                                         </div>
                                         <div class="flex items-center gap-3">
@@ -840,20 +1077,26 @@
         document.getElementById('cancel-expense').onclick = () => {
             document.getElementById('expense-modal').classList.add('hidden');
             document.getElementById('expense-form').reset();
+            document.getElementById('custom-expense-name-container').classList.add('hidden');
         };
 
         document.getElementById('expense-form').onsubmit = async (e) => {
             e.preventDefault();
             
+            const category = document.getElementById('expense-category').value;
+            const customName = category === 'Other' ? document.getElementById('custom-expense-name').value : null;
+            
             await addDoc(collection(db, "expenses"), {
                 batchId: document.getElementById('expense-batch').value,
-                category: document.getElementById('expense-category').value,
+                category: category,
+                customName: customName,
                 amount: parseFloat(document.getElementById('expense-amount').value),
                 date: new Date()
             });
 
             document.getElementById('expense-modal').classList.add('hidden');
             document.getElementById('expense-form').reset();
+            document.getElementById('custom-expense-name-container').classList.add('hidden');
         };
 
         window.delExpense = async (id) => {
@@ -1172,7 +1415,7 @@
                 ]);
 
                 pdf.autoTable({
-                    head: [['Product Name', 'Code', 'Type', 'Price']],
+                    head: [['Product Name', 'Code', 'Type', 'Selling Price']],
                     body: rows,
                     startY: startY,
                     margin: { left: 14, right: 14 },
