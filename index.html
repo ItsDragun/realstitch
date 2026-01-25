@@ -918,9 +918,28 @@
                     try {
                         const itemName = row['Item Name'] || row['item name'] || row['Name'] || row['name'] || '';
                         const code = row['Code'] || row['code'] || row['Serial'] || row['serial'] || '';
-                        const sleeveType = row['Sleeve Type'] || row['sleeve type'] || row['Sleeve'] || row['sleeve'] || '';
-                        const material = row['Material'] || row['material'] || '';
-                        const customMade = row['Custom Made'] || row['custom made'] || row['Custom'] || row['custom'] || 'No';
+                        const sleeveType = String(
+                            row['Sleeve Type (LS/SS)'] || 
+                            row['Sleeve Type'] || 
+                            row['sleeve type'] || 
+                            row['Sleeve'] || 
+                            row['sleeve'] || 
+                            ''
+                        ).trim();
+                        const material = String(
+                            row['Material (Plain/Patterned)'] || 
+                            row['Material'] || 
+                            row['material'] || 
+                            ''
+                        ).trim();
+                        const customMade = String(
+                            row['Custom Made (Yes/No)'] || 
+                            row['Custom Made'] || 
+                            row['custom made'] || 
+                            row['Custom'] || 
+                            row['custom'] || 
+                            'No'
+                        ).trim();
                         const price = row['Selling Price'] || row['selling price'] || row['Price'] || row['price'] || 0;
 
                         if (!itemName || !code || !price) {
@@ -929,20 +948,42 @@
                             continue;
                         }
 
-                        let normalizedSleeveType = 'Long Sleeve';
-                        if (sleeveType.toUpperCase().includes('SS') || sleeveType.toLowerCase().includes('short')) {
-                            normalizedSleeveType = 'Short Sleeve';
-                        } else if (sleeveType.toUpperCase().includes('LS') || sleeveType.toLowerCase().includes('long')) {
-                            normalizedSleeveType = 'Long Sleeve';
+                        // Normalize sleeve type
+                        let normalizedSleeveType = 'Long Sleeve'; // Default
+                        if (sleeveType !== '') {
+                            const sleeveUpper = sleeveType.toUpperCase();
+                            const sleeveLower = sleeveType.toLowerCase();
+                            
+                            if (sleeveUpper === 'SS' || sleeveUpper === 'SHORT SLEEVE' || sleeveUpper === 'SHORT' || sleeveLower === 'short' || sleeveLower === 'ss') {
+                                normalizedSleeveType = 'Short Sleeve';
+                            } else if (sleeveUpper === 'LS' || sleeveUpper === 'LONG SLEEVE' || sleeveUpper === 'LONG' || sleeveLower === 'long' || sleeveLower === 'ls') {
+                                normalizedSleeveType = 'Long Sleeve';
+                            } else {
+                                // Unrecognized sleeve type
+                                errors.push(`Row ${i + 2}: Warning - Unrecognized sleeve type "${sleeveType}", defaulting to Long Sleeve`);
+                            }
                         }
 
-                        let normalizedMaterial = 'Plain';
-                        if (material.toLowerCase().includes('pattern')) {
-                            normalizedMaterial = 'Patterned';
+                        // Normalize material
+                        let normalizedMaterial = 'Plain'; // Default
+                        if (material !== '') {
+                            const materialUpper = material.toUpperCase();
+                            const materialLower = material.toLowerCase();
+                            
+                            if (materialUpper === 'PATTERNED' || materialLower === 'patterned' || materialLower.includes('pattern')) {
+                                normalizedMaterial = 'Patterned';
+                            } else if (materialUpper === 'PLAIN' || materialLower === 'plain') {
+                                normalizedMaterial = 'Plain';
+                            } else {
+                                // Unrecognized material
+                                errors.push(`Row ${i + 2}: Warning - Unrecognized material "${material}", defaulting to Plain`);
+                            }
                         }
 
+                        // Normalize custom made
                         let normalizedCustom = 'No';
-                        if (customMade.toString().toLowerCase() === 'yes' || customMade.toString() === '1') {
+                        const customLower = customMade.toLowerCase();
+                        if (customLower === 'yes' || customLower === 'y' || customMade === '1' || customLower === 'true') {
                             normalizedCustom = 'Yes';
                         }
 
