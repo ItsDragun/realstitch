@@ -229,6 +229,7 @@
                         <button id="view-tailors" class="flex-1 bg-blue-100 text-blue-600 px-5 py-2.5 rounded-xl font-bold text-sm transition-all">Tailors</button>
                         <button id="view-analytics" class="flex-1 bg-amber-100 text-amber-600 px-5 py-2.5 rounded-xl font-bold text-sm transition-all">Analytics</button>
                         <button id="view-catalog" class="flex-1 bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all">Catalog</button>
+                        <button id="view-users" class="hidden flex-1 bg-rose-100 text-rose-600 px-5 py-2.5 rounded-xl font-bold text-sm transition-all">User Management</button>
                     </div>
 
                     <!-- CATALOG VIEW -->
@@ -420,6 +421,49 @@
                         
                         <div id="analytics-content" class="space-y-6"></div>
                     </div>
+
+                    <!-- USER MANAGEMENT VIEW -->
+                    <div id="users-view" class="hidden">
+                        <div class="flex justify-between items-end mb-6">
+                            <div>
+                                <h3 class="text-3xl font-extrabold tracking-tight">User Management</h3>
+                                <p class="text-slate-500 text-sm">Manage user access and permissions.</p>
+                            </div>
+                            <button id="add-user-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm">+ Add User</button>
+                        </div>
+                        <div id="users-list" class="space-y-4"></div>
+                    </div>
+
+                    <!-- ADD USER MODAL -->
+                    <div id="user-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div class="glass-card p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4">
+                            <h3 class="text-2xl font-bold mb-6">Add New User</h3>
+                            <form id="user-form" class="space-y-4">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Email Address</label>
+                                    <input type="email" id="user-email" placeholder="user@example.com" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Access Level</label>
+                                    <select id="user-role" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm" required>
+                                        <option value="">Select access level</option>
+                                        <option value="admin">Full Access (Admin)</option>
+                                        <option value="viewer">Catalog Only (Viewer)</option>
+                                    </select>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-xl">
+                                    <p class="text-xs text-blue-800">
+                                        <strong>Full Access:</strong> Can manage inventory, expenses, tailors, and view analytics.<br>
+                                        <strong>Catalog Only:</strong> Can only view and manage catalog items (no financial data).
+                                    </p>
+                                </div>
+                                <div class="flex gap-3 mt-6">
+                                    <button type="button" id="cancel-user" class="flex-1 bg-slate-100 text-slate-600 p-3 rounded-xl font-bold">Cancel</button>
+                                    <button type="submit" class="flex-1 btn-gradient text-white p-3 rounded-xl font-bold">Add User</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -546,13 +590,39 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
+        // Main admin emails
+        const MAIN_ADMINS = [
+            'bukkyugwu@gmail.com',
+            'davidfestusugwu@gmail.com',
+            'realstitchfashion@gmail.com',
+            'festusugwu@gmail.com'
+        ];
+
+        let currentUserRole = null;
+        let currentUserEmail = null;
+
         document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
         document.getElementById('logout-btn').onclick = () => signOut(auth);
 
-        onAuthStateChanged(auth, user => {
+        onAuthStateChanged(auth, async user => {
             if (user) {
+                currentUserEmail = user.email;
+                
+                // Check if user has access
+                const hasAccess = await checkUserAccess(user.email);
+                
+                if (!hasAccess) {
+                    alert('You do not have access to this system. Please contact an administrator.');
+                    signOut(auth);
+                    return;
+                }
+                
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
+                
+                // Apply role-based UI restrictions
+                applyRoleRestrictions();
+                
                 loadTypes();
                 loadInventory();
                 loadBatches();
@@ -563,11 +633,64 @@
                 setupPLReport();
                 setupBulkExcelImport();
                 setupCatalogSearch();
+                
+                if (currentUserRole === 'admin') {
+                    loadUsersView();
+                }
             } else {
+                currentUserRole = null;
+                currentUserEmail = null;
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('dashboard').classList.add('hidden');
             }
         });
+
+        async function checkUserAccess(email) {
+            // Main admins always have access
+            if (MAIN_ADMINS.includes(email.toLowerCase())) {
+                currentUserRole = 'admin';
+                return true;
+            }
+            
+            // Check if user exists in users collection
+            const usersSnap = await getDocs(query(collection(db, "users"), where("email", "==", email.toLowerCase())));
+            
+            if (usersSnap.empty) {
+                return false;
+            }
+            
+            const userData = usersSnap.docs[0].data();
+            currentUserRole = userData.role;
+            return true;
+        }
+
+        function applyRoleRestrictions() {
+            if (currentUserRole === 'viewer') {
+                // Hide all views except catalog
+                document.getElementById('view-batches').style.display = 'none';
+                document.getElementById('view-expenses').style.display = 'none';
+                document.getElementById('view-tailors').style.display = 'none';
+                document.getElementById('view-analytics').style.display = 'none';
+                
+                // Hide batch management and new item tabs
+                document.getElementById('tab-batch').style.display = 'none';
+                document.getElementById('tab-item').style.display = 'none';
+                document.querySelector('.lg\\:col-span-1').style.display = 'none';
+                
+                // Show only catalog
+                document.getElementById('catalog-view').classList.remove('hidden');
+                
+                // Hide pricing column in catalog
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    .viewer-hide-price { display: none !important; }
+                `;
+                document.head.appendChild(style);
+            } else if (currentUserRole === 'admin') {
+                // Show user management button for admins
+                document.getElementById('view-users').classList.remove('hidden');
+            }
+        }
 
         function loadTypes() {
             onSnapshot(collection(db, "types"), (snap) => {
@@ -1041,19 +1164,25 @@
                 'view-batches': 'batches-view',
                 'view-expenses': 'expenses-view',
                 'view-tailors': 'tailors-view',
-                'view-analytics': 'analytics-view'
+                'view-analytics': 'analytics-view',
+                'view-users': 'users-view'
             };
 
             Object.keys(views).forEach(btnId => {
-                document.getElementById(btnId).onclick = () => {
+                const btn = document.getElementById(btnId);
+                if (!btn) return;
+                
+                btn.onclick = () => {
                     Object.values(views).forEach(v => document.getElementById(v).classList.add('hidden'));
                     document.getElementById(views[btnId]).classList.remove('hidden');
                     
                     Object.keys(views).forEach(id => {
-                        const btn = document.getElementById(id);
-                        btn.classList.remove('bg-slate-800', 'text-white');
-                        if (id === btnId) {
-                            btn.classList.add('bg-slate-800', 'text-white');
+                        const button = document.getElementById(id);
+                        if (button) {
+                            button.classList.remove('bg-slate-800', 'text-white');
+                            if (id === btnId) {
+                                button.classList.add('bg-slate-800', 'text-white');
+                            }
                         }
                     });
 
@@ -1061,6 +1190,7 @@
                     if (btnId === 'view-expenses') loadExpensesView();
                     if (btnId === 'view-tailors') loadTailorsView();
                     if (btnId === 'view-analytics') loadAnalyticsView();
+                    if (btnId === 'view-users') loadUsersView();
                 };
             });
         }
@@ -1210,7 +1340,7 @@
                                                 </td>
                                                 <td class="p-5">
                                                     <div class="text-xs font-semibold text-slate-500">${item.sleeveType || ''} ${item.material || ''}</div>
-                                                    <div class="text-indigo-600 font-bold">₦${item.price}</div>
+                                                    <div class="text-indigo-600 font-bold ${currentUserRole === 'viewer' ? 'viewer-hide-price' : ''}">₦${item.price}</div>
                                                 </td>
                                                 <td class="p-5">
                                                     <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${item.status === 'sold' ? 'bg-rose-100 text-rose-600' : item.status === 'delivered' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}">
@@ -1746,6 +1876,102 @@
             }
 
             pdf.save(`RealStitch_Sales_Report_${new Date().toLocaleDateString().replace(/\//g, '-')}.pdf`);
+        };
+
+        // USER MANAGEMENT
+        function loadUsersView() {
+            onSnapshot(collection(db, "users"), (snap) => {
+                const list = document.getElementById('users-list');
+                list.innerHTML = "";
+                
+                // Show main admins
+                list.innerHTML += `
+                    <div class="glass-card p-6 rounded-3xl shadow-lg border-2 border-indigo-200">
+                        <h4 class="font-bold text-lg mb-4 text-indigo-900">👑 Main Administrators</h4>
+                        ${MAIN_ADMINS.map(email => `
+                            <div class="flex justify-between items-center bg-indigo-50 p-3 rounded-lg mb-2">
+                                <div>
+                                    <span class="font-semibold text-indigo-900">${email}</span>
+                                    <span class="ml-3 px-2 py-1 bg-indigo-600 text-white rounded text-xs font-bold">MAIN ADMIN</span>
+                                </div>
+                                <span class="text-xs text-indigo-600">Permanent Access</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                snap.forEach(d => {
+                    const user = d.data();
+                    list.innerHTML += `
+                        <div class="glass-card p-6 rounded-3xl shadow-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="font-semibold">${user.email}</span>
+                                    <span class="ml-3 px-2 py-1 ${user.role === 'admin' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'} rounded text-xs font-bold">
+                                        ${user.role === 'admin' ? 'FULL ACCESS' : 'CATALOG ONLY'}
+                                    </span>
+                                </div>
+                                <button onclick="window.removeUser('${d.id}')" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Remove Access</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                if (snap.empty) {
+                    list.innerHTML += `
+                        <div class="glass-card p-12 rounded-3xl shadow-lg text-center">
+                            <p class="text-slate-500">No additional users added yet.</p>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        document.getElementById('add-user-btn')?.addEventListener('click', () => {
+            document.getElementById('user-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('cancel-user')?.addEventListener('click', () => {
+            document.getElementById('user-modal').classList.add('hidden');
+            document.getElementById('user-form').reset();
+        });
+
+        document.getElementById('user-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('user-email').value.toLowerCase();
+            const role = document.getElementById('user-role').value;
+            
+            // Check if email is a main admin
+            if (MAIN_ADMINS.includes(email)) {
+                alert('This email is already a main administrator with permanent access.');
+                return;
+            }
+            
+            // Check if user already exists
+            const existingUser = await getDocs(query(collection(db, "users"), where("email", "==", email)));
+            if (!existingUser.empty) {
+                alert('This user already has access to the system.');
+                return;
+            }
+            
+            await addDoc(collection(db, "users"), {
+                email: email,
+                role: role,
+                addedBy: currentUserEmail,
+                addedAt: new Date()
+            });
+            
+            document.getElementById('user-modal').classList.add('hidden');
+            document.getElementById('user-form').reset();
+            alert(`User ${email} has been granted ${role === 'admin' ? 'full' : 'catalog-only'} access.`);
+        });
+
+        window.removeUser = async (id) => {
+            if (confirm('Are you sure you want to remove this user\'s access?')) {
+                await deleteDoc(doc(db, "users", id));
+                alert('User access has been removed.');
+            }
         };
     </script>
 </body>
