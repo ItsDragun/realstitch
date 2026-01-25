@@ -189,17 +189,6 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Multi-Source Materials -->
-                                <div>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Material Sources</label>
-                                        <button type="button" id="add-material-source" class="bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-indigo-600">+ Add Source</button>
-                                    </div>
-                                    <div id="material-sources-container" class="space-y-2">
-                                        <input type="text" class="material-source w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm" placeholder="Material Source 1">
-                                    </div>
-                                </div>
-
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase ml-1">Custom Made?</label>
                                     <select id="item-custom" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
@@ -250,6 +239,9 @@
                                 <p class="text-slate-500 text-sm">Manage your stock levels and sales.</p>
                             </div>
                             <div class="flex gap-3 items-center">
+                                <div class="bg-slate-50 px-4 py-2 rounded-xl">
+                                    <input type="text" id="catalog-search" placeholder="Search by name or code..." class="bg-transparent outline-none text-sm w-64">
+                                </div>
                                 <div class="bg-indigo-50 px-4 py-2 rounded-xl">
                                     <label class="text-xs font-bold text-indigo-600 uppercase">Filter by Batch:</label>
                                     <select id="catalog-batch-filter" class="bg-transparent outline-none font-semibold text-sm ml-2">
@@ -314,6 +306,10 @@
                                         <option value="Other">Other</option>
                                     </select>
                                 </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Additional Details (Optional)</label>
+                                    <input type="text" id="expense-details" placeholder="e.g. Name of ironer, supplier, etc." class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
+                                </div>
                                 <div id="custom-expense-name-container" class="hidden">
                                     <label class="text-xs font-bold text-slate-400 uppercase ml-1">Custom Expense Name</label>
                                     <input type="text" id="custom-expense-name" placeholder="Enter expense name" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
@@ -366,12 +362,16 @@
                                     <input type="number" id="tailor-cost" step="0.01" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
                                 </div>
                                 <div>
-                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Date Sent</label>
-                                    <input type="date" id="tailor-sent" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Date Contacted</label>
+                                    <input type="date" id="tailor-contacted" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
                                 </div>
                                 <div>
-                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Promised Date</label>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Promised Delivery Date</label>
                                     <input type="date" id="tailor-promised" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Actual Delivery Date (Optional)</label>
+                                    <input type="date" id="tailor-delivered" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
                                 </div>
                                 <div class="flex gap-3 mt-6">
                                     <button type="button" id="cancel-tailor" class="flex-1 bg-slate-100 text-slate-600 p-3 rounded-xl font-bold">Cancel</button>
@@ -559,10 +559,10 @@
                 setupTabSwitching();
                 setupViewSwitching();
                 setupCatalogFilter();
-                setupMaterialSources();
                 setupExpenseCategory();
                 setupPLReport();
                 setupBulkExcelImport();
+                setupCatalogSearch();
             } else {
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('dashboard').classList.add('hidden');
@@ -579,26 +579,6 @@
                     });
                 }
             });
-        }
-
-        // Multi-Source Material Management
-        function setupMaterialSources() {
-            let sourceCount = 1;
-            document.getElementById('add-material-source').onclick = () => {
-                sourceCount++;
-                const container = document.getElementById('material-sources-container');
-                const newInput = document.createElement('div');
-                newInput.className = 'flex gap-2';
-                newInput.innerHTML = `
-                    <input type="text" class="material-source flex-1 bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm" placeholder="Material Source ${sourceCount}">
-                    <button type="button" class="remove-source bg-rose-500 text-white px-3 rounded-lg text-xs font-bold hover:bg-rose-600">Remove</button>
-                `;
-                container.appendChild(newInput);
-                
-                newInput.querySelector('.remove-source').onclick = () => {
-                    newInput.remove();
-                };
-            };
         }
 
         // Show/Hide Custom Expense Name
@@ -1136,17 +1116,13 @@
             let imageBase64 = "";
             if (file) imageBase64 = await toBase64(file);
 
-            const materialSources = Array.from(document.querySelectorAll('.material-source'))
-                .map(input => input.value)
-                .filter(val => val.trim() !== '');
-
             await addDoc(collection(db, "inventory"), {
                 batchId: document.getElementById('item-batch').value,
                 name: document.getElementById('item-name').value,
                 code: document.getElementById('item-code').value,
                 sleeveType: document.getElementById('item-sleeve').value,
                 material: document.getElementById('item-material').value,
-                materialSources: materialSources,
+                materialSources: [],
                 customMade: document.getElementById('item-custom').value,
                 price: document.getElementById('item-price').value,
                 image: imageBase64,
@@ -1158,10 +1134,6 @@
             btn.innerText = "Save to Collection";
             btn.disabled = false;
             e.target.reset();
-            
-            document.getElementById('material-sources-container').innerHTML = `
-                <input type="text" class="material-source w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm" placeholder="Material Source 1">
-            `;
         };
 
         function loadInventory() {
@@ -1184,6 +1156,7 @@
                 });
 
                 const filterValue = document.getElementById('catalog-batch-filter')?.value || '';
+                const searchValue = document.getElementById('catalog-search')?.value.toLowerCase() || '';
                 
                 const container = document.getElementById('catalog-by-batches');
                 container.innerHTML = "";
@@ -1192,7 +1165,17 @@
                     if (filterValue && filterValue !== batchId) return;
 
                     const batchName = batches[batchId] || 'Unassigned Items';
-                    const items = itemsByBatch[batchId];
+                    let items = itemsByBatch[batchId];
+                    
+                    // Apply search filter
+                    if (searchValue) {
+                        items = items.filter(item => 
+                            item.name.toLowerCase().includes(searchValue) || 
+                            item.code.toLowerCase().includes(searchValue)
+                        );
+                    }
+                    
+                    if (items.length === 0) return; // Skip if no items match
                     
                     container.innerHTML += `
                         <div class="mb-8">
@@ -1224,11 +1207,6 @@
                                                 <td class="p-5">
                                                     <div class="font-bold text-slate-800">${item.name}</div>
                                                     <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Code: ${item.code}</div>
-                                                    ${item.materialSources && item.materialSources.length > 0 ? `
-                                                        <div class="text-[9px] text-indigo-600 mt-1">
-                                                            Sources: ${item.materialSources.join(', ')}
-                                                        </div>
-                                                    ` : ''}
                                                 </td>
                                                 <td class="p-5">
                                                     <div class="text-xs font-semibold text-slate-500">${item.sleeveType || ''} ${item.material || ''}</div>
@@ -1276,6 +1254,14 @@
             const filterSelect = document.getElementById('catalog-batch-filter');
             if (filterSelect) {
                 filterSelect.onchange = loadInventory;
+            }
+        }
+
+        // NEW: Catalog Search Functionality
+        function setupCatalogSearch() {
+            const searchInput = document.getElementById('catalog-search');
+            if (searchInput) {
+                searchInput.oninput = loadInventory;
             }
         }
 
@@ -1347,6 +1333,7 @@
                                     <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
                                         <div>
                                             <span class="font-semibold">${e.customName || e.category}</span>
+                                            ${e.details ? `<span class="text-xs text-indigo-600 ml-2">(${e.details})</span>` : ''}
                                             <span class="text-xs text-slate-500 ml-2">${new Date(e.date?.toDate()).toLocaleDateString()}</span>
                                         </div>
                                         <div class="flex items-center gap-3">
@@ -1378,11 +1365,13 @@
             
             const category = document.getElementById('expense-category').value;
             const customName = category === 'Other' ? document.getElementById('custom-expense-name').value : null;
+            const details = document.getElementById('expense-details').value;
             
             await addDoc(collection(db, "expenses"), {
                 batchId: document.getElementById('expense-batch').value,
                 category: category,
                 customName: customName,
+                details: details,
                 amount: parseFloat(document.getElementById('expense-amount').value),
                 date: new Date()
             });
@@ -1400,15 +1389,16 @@
 
         // TAILORS VIEW
         function loadTailorsView() {
-            onSnapshot(query(collection(db, "tailors"), orderBy("dateSent", "desc")), (snap) => {
+            onSnapshot(query(collection(db, "tailors"), orderBy("dateContacted", "desc")), (snap) => {
                 const list = document.getElementById('tailors-list');
                 list.innerHTML = "";
                 snap.forEach(d => {
                     const tailor = d.data();
-                    const dateSent = tailor.dateSent?.toDate();
+                    const dateContacted = tailor.dateContacted?.toDate();
                     const promisedDate = tailor.promisedDate?.toDate();
-                    const receivedDate = tailor.receivedDate?.toDate();
-                    const isLate = receivedDate && promisedDate && receivedDate > promisedDate;
+                    const deliveredDate = tailor.deliveredDate?.toDate();
+                    const isLate = !deliveredDate && promisedDate && new Date() > promisedDate;
+                    const wasLate = deliveredDate && promisedDate && deliveredDate > promisedDate;
 
                     list.innerHTML += `
                         <div class="glass-card p-6 rounded-3xl shadow-lg">
@@ -1417,24 +1407,34 @@
                                     <h4 class="text-lg font-bold">${tailor.tailorName}</h4>
                                     <p class="text-sm text-slate-500">Batch: ${tailor.batchId}</p>
                                     <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
-                                        <div><strong>Item:</strong> ${tailor.itemType}</div>
                                         <div><strong>Qty:</strong> ${tailor.quantity}</div>
                                         <div><strong>Cost/Unit:</strong> ₦${tailor.costPerUnit}</div>
-                                        <div><strong>Total:</strong> ₦${(tailor.quantity * tailor.costPerUnit).toFixed(2)}</div>
+                                        <div class="col-span-2"><strong>Total:</strong> ₦${(tailor.quantity * tailor.costPerUnit).toFixed(2)}</div>
                                     </div>
                                     <div class="mt-3 space-y-1 text-xs">
-                                        <div><strong>Sent:</strong> ${dateSent ? dateSent.toLocaleDateString() : 'N/A'}</div>
+                                        <div><strong>Contacted:</strong> ${dateContacted ? dateContacted.toLocaleDateString() : 'N/A'}</div>
                                         <div><strong>Promised:</strong> ${promisedDate ? promisedDate.toLocaleDateString() : 'N/A'}</div>
-                                        <div class="${isLate ? 'text-rose-600 font-bold' : ''}"><strong>Received:</strong> ${receivedDate ? receivedDate.toLocaleDateString() : 'Pending'}</div>
-                                        ${isLate ? '<div class="text-rose-600 font-bold">⚠ LATE DELIVERY</div>' : ''}
+                                        <div class="${(isLate || wasLate) ? 'text-rose-600 font-bold' : ''}">
+                                            <strong>Delivered:</strong> ${deliveredDate ? deliveredDate.toLocaleDateString() : 'Not yet delivered'}
+                                        </div>
+                                        ${isLate ? '<div class="text-rose-600 font-bold">⚠ OVERDUE</div>' : ''}
+                                        ${wasLate ? '<div class="text-rose-600 font-bold">⚠ WAS LATE</div>' : ''}
                                     </div>
                                 </div>
                                 <div class="flex flex-col gap-2">
-                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${tailor.paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}">
+                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${
+                                        tailor.paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 
+                                        tailor.paymentStatus === 'Not Paid' ? 'bg-rose-100 text-rose-600' :
+                                        'bg-amber-100 text-amber-600'
+                                    }">
                                         ${tailor.paymentStatus}
                                     </span>
-                                    <button onclick="window.updateTailorPayment('${d.id}', '${tailor.paymentStatus === 'Paid' ? 'Pending' : 'Paid'}')" class="bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs">Toggle</button>
-                                    <button onclick="window.markReceived('${d.id}')" class="bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs">Received</button>
+                                    <button onclick="window.cycleTailorStatus('${d.id}', '${tailor.paymentStatus}')" class="bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs">
+                                        Toggle Status
+                                    </button>
+                                    ${!deliveredDate ? `
+                                        <button onclick="window.markDelivered('${d.id}')" class="bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs">Mark Delivered</button>
+                                    ` : ''}
                                 </div>
                             </div>
                         </div>
@@ -1455,28 +1455,40 @@
         document.getElementById('tailor-form').onsubmit = async (e) => {
             e.preventDefault();
 
+            const deliveredDateValue = document.getElementById('tailor-delivered').value;
+
             await addDoc(collection(db, "tailors"), {
                 batchId: document.getElementById('tailor-batch').value,
                 tailorName: document.getElementById('tailor-name').value,
-                itemType: '',
                 quantity: parseInt(document.getElementById('tailor-quantity').value),
                 costPerUnit: parseFloat(document.getElementById('tailor-cost').value),
-                dateSent: new Date(document.getElementById('tailor-sent').value),
+                dateContacted: new Date(document.getElementById('tailor-contacted').value),
                 promisedDate: new Date(document.getElementById('tailor-promised').value),
-                receivedDate: null,
-                paymentStatus: 'Pending'
+                deliveredDate: deliveredDateValue ? new Date(deliveredDateValue) : null,
+                paymentStatus: 'Not Paid'
             });
 
             document.getElementById('tailor-modal').classList.add('hidden');
             document.getElementById('tailor-form').reset();
         };
 
-        window.updateTailorPayment = async (id, status) => {
-            await updateDoc(doc(db, "tailors", id), { paymentStatus: status });
+        window.cycleTailorStatus = async (id, currentStatus) => {
+            let newStatus;
+            if (currentStatus === 'Not Paid') {
+                newStatus = 'Delivered';
+            } else if (currentStatus === 'Delivered') {
+                newStatus = 'Paid';
+            } else {
+                newStatus = 'Not Paid';
+            }
+            await updateDoc(doc(db, "tailors", id), { paymentStatus: newStatus });
         };
 
-        window.markReceived = async (id) => {
-            await updateDoc(doc(db, "tailors", id), { receivedDate: new Date() });
+        window.markDelivered = async (id) => {
+            await updateDoc(doc(db, "tailors", id), { 
+                deliveredDate: new Date(),
+                paymentStatus: 'Delivered'
+            });
         };
 
         // HELP MODAL
