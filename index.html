@@ -932,73 +932,102 @@
             
             const { startDate, endDate, soldItems, totalRevenue, proportionalCosts, netProfit } = currentPLData;
 
+            // Enhanced Header with gradient effect
             pdf.setFillColor(79, 70, 229);
-            pdf.rect(0, 0, 210, 40, 'F');
+            pdf.rect(0, 0, 210, 50, 'F');
+            
+            // White accent line
+            pdf.setFillColor(255, 255, 255);
+            pdf.rect(0, 48, 210, 2, 'F');
             
             pdf.setTextColor(255, 255, 255);
-            pdf.setFontSize(32);
+            pdf.setFontSize(36);
             pdf.setFont(undefined, 'bold');
-            pdf.text("REAL STITCH", 105, 20, { align: 'center' });
+            pdf.text("REAL STITCH", 105, 22, { align: 'center' });
             
-            pdf.setFontSize(16);
-            pdf.text("Profit & Loss Statement", 105, 30, { align: 'center' });
+            pdf.setFontSize(18);
+            pdf.setFont(undefined, 'normal');
+            pdf.text("Profit & Loss Statement", 105, 32, { align: 'center' });
             
-            pdf.setFontSize(10);
-            pdf.text(`Period: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`, 105, 36, { align: 'center' });
+            pdf.setFontSize(11);
+            pdf.text(`Reporting Period: ${startDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`, 105, 42, { align: 'center' });
 
-            let yPos = 55;
+            let yPos = 65;
             
-            pdf.setFillColor(241, 245, 249);
-            pdf.rect(14, yPos, 182, 50, 'F');
+            // Financial Summary Card with border
+            pdf.setDrawColor(226, 232, 240);
+            pdf.setLineWidth(0.5);
+            pdf.setFillColor(248, 250, 252);
+            pdf.rect(14, yPos, 182, 65, 'FD');
             
             pdf.setTextColor(30, 41, 59);
-            pdf.setFontSize(14);
+            pdf.setFontSize(16);
             pdf.setFont(undefined, 'bold');
-            pdf.text("FINANCIAL SUMMARY", 20, yPos + 10);
+            pdf.text("📊 FINANCIAL SUMMARY", 20, yPos + 12);
+            
+            // Divider line
+            pdf.setDrawColor(203, 213, 225);
+            pdf.setLineWidth(0.3);
+            pdf.line(20, yPos + 18, 190, yPos + 18);
             
             pdf.setFontSize(11);
             pdf.setFont(undefined, 'normal');
-            pdf.text(`Items Sold:`, 20, yPos + 22);
-            pdf.text(`${soldItems.length}`, 180, yPos + 22, { align: 'right' });
             
-            pdf.text(`Total Revenue:`, 20, yPos + 32);
+            // Items Sold
+            pdf.setTextColor(71, 85, 105);
+            pdf.text(`Items Sold:`, 25, yPos + 30);
+            pdf.setTextColor(30, 41, 59);
+            pdf.setFont(undefined, 'bold');
+            pdf.text(`${soldItems.length}`, 190, yPos + 30, { align: 'right' });
+            
+            // Total Revenue
+            pdf.setFont(undefined, 'normal');
+            pdf.setTextColor(71, 85, 105);
+            pdf.text(`Total Revenue:`, 25, yPos + 40);
             pdf.setTextColor(16, 185, 129);
             pdf.setFont(undefined, 'bold');
-            pdf.text(`₦${totalRevenue.toFixed(2)}`, 180, yPos + 32, { align: 'right' });
+            pdf.setFontSize(12);
+            pdf.text(`₦${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 190, yPos + 40, { align: 'right' });
             
-            pdf.setTextColor(30, 41, 59);
+            // Cost of Goods Sold
+            pdf.setFontSize(11);
             pdf.setFont(undefined, 'normal');
-            pdf.text(`Cost of Goods Sold:`, 20, yPos + 42);
+            pdf.setTextColor(71, 85, 105);
+            pdf.text(`Cost of Goods Sold:`, 25, yPos + 50);
             pdf.setTextColor(239, 68, 68);
             pdf.setFont(undefined, 'bold');
-            pdf.text(`-₦${proportionalCosts.toFixed(2)}`, 180, yPos + 42, { align: 'right' });
+            pdf.setFontSize(12);
+            pdf.text(`₦${proportionalCosts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 190, yPos + 50, { align: 'right' });
 
-            yPos += 60;
+            yPos += 75;
+            
+            // Net Profit/Loss Highlight Box
             const profitColor = netProfit >= 0 ? [16, 185, 129] : [239, 68, 68];
             pdf.setFillColor(...profitColor);
-            pdf.rect(14, yPos, 182, 20, 'F');
+            pdf.rect(14, yPos, 182, 25, 'F');
             
             pdf.setTextColor(255, 255, 255);
-            pdf.setFontSize(16);
+            pdf.setFontSize(18);
             pdf.setFont(undefined, 'bold');
-            pdf.text(`NET ${netProfit >= 0 ? 'PROFIT' : 'LOSS'}:`, 20, yPos + 13);
-            pdf.text(`₦${Math.abs(netProfit).toFixed(2)}`, 180, yPos + 13, { align: 'right' });
+            pdf.text(`NET ${netProfit >= 0 ? 'PROFIT' : 'LOSS'}:`, 20, yPos + 16);
+            pdf.setFontSize(20);
+            pdf.text(`₦${Math.abs(netProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 190, yPos + 16, { align: 'right' });
 
             if (soldItems.length > 0) {
-                yPos += 35;
+                yPos += 40;
                 
                 pdf.setTextColor(30, 41, 59);
-                pdf.setFontSize(14);
+                pdf.setFontSize(16);
                 pdf.setFont(undefined, 'bold');
-                pdf.text("ITEMS SOLD DETAIL", 20, yPos);
+                pdf.text("📋 ITEMS SOLD DETAIL", 20, yPos);
                 
-                yPos += 5;
+                yPos += 8;
 
                 const rows = soldItems.map(item => [
-                    item.name,
-                    item.code,
-                    `${item.sleeveType || ''} ${item.material || ''}`.trim(),
-                    `₦${parseFloat(item.price).toFixed(2)}`
+                    item.name || 'N/A',
+                    item.code || 'N/A',
+                    `${item.sleeveType || ''} ${item.material || ''}`.trim() || 'N/A',
+                    `₦${parseFloat(item.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 ]);
 
                 pdf.autoTable({
@@ -1006,35 +1035,49 @@
                     body: rows,
                     startY: yPos,
                     margin: { left: 14, right: 14 },
+                    theme: 'striped',
                     headStyles: {
                         fillColor: [79, 70, 229],
                         textColor: [255, 255, 255],
                         fontStyle: 'bold',
-                        fontSize: 10
+                        fontSize: 11,
+                        halign: 'center'
                     },
                     bodyStyles: {
-                        fontSize: 9,
-                        textColor: [51, 65, 85]
+                        fontSize: 10,
+                        textColor: [51, 65, 85],
+                        cellPadding: 3
                     },
                     alternateRowStyles: {
                         fillColor: [248, 250, 252]
                     },
                     columnStyles: {
-                        0: { cellWidth: 70 },
-                        1: { cellWidth: 45 },
-                        2: { cellWidth: 50 },
-                        3: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }
+                        0: { cellWidth: 75, fontStyle: 'bold' },
+                        1: { cellWidth: 40, halign: 'center' },
+                        2: { cellWidth: 50, halign: 'center' },
+                        3: { cellWidth: 27, halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] }
+                    },
+                    styles: {
+                        lineColor: [226, 232, 240],
+                        lineWidth: 0.3
                     }
                 });
             }
 
+            // Footer on all pages
             const pageCount = pdf.internal.getNumberOfPages();
             for (let i = 1; i <= pageCount; i++) {
                 pdf.setPage(i);
-                pdf.setFontSize(8);
+                
+                // Footer line
+                pdf.setDrawColor(226, 232, 240);
+                pdf.setLineWidth(0.5);
+                pdf.line(14, 280, 196, 280);
+                
+                pdf.setFontSize(9);
                 pdf.setTextColor(148, 163, 184);
-                pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 290, { align: 'center' });
-                pdf.text(`Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
+                pdf.text(`Generated on ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`, 105, 285, { align: 'center' });
+                pdf.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
             }
 
             pdf.save(`PL_Report_${startDate.toLocaleDateString().replace(/\//g, '-')}_to_${endDate.toLocaleDateString().replace(/\//g, '-')}.pdf`);
@@ -1956,22 +1999,27 @@
                 }
             });
 
+            // Enhanced Header
             pdf.setFillColor(79, 70, 229);
-            pdf.rect(0, 0, 210, 35, 'F');
+            pdf.rect(0, 0, 210, 50, 'F');
+            
+            // White accent line
+            pdf.setFillColor(255, 255, 255);
+            pdf.rect(0, 48, 210, 2, 'F');
             
             pdf.setTextColor(255, 255, 255);
-            pdf.setFontSize(28);
+            pdf.setFontSize(36);
             pdf.setFont(undefined, 'bold');
-            pdf.text("REAL STITCH", 40, 20);
+            pdf.text("REAL STITCH", 105, 22, { align: 'center' });
             
-            pdf.setFontSize(12);
+            pdf.setFontSize(18);
             pdf.setFont(undefined, 'normal');
-            pdf.text("Sales Report - Sold Items", 40, 28);
+            pdf.text("Sales Report - Sold Items", 105, 32, { align: 'center' });
             
-            pdf.setFontSize(9);
-            pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 150, 28);
+            pdf.setFontSize(11);
+            pdf.text(`Generated: ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`, 105, 42, { align: 'center' });
 
-            let startY = 45;
+            let startY = 65;
             let totalRevenue = 0;
             let totalItemsSold = 0;
 
@@ -1984,29 +2032,35 @@
 
                 if (startY > 250) {
                     pdf.addPage();
-                    startY = 20;
+                    startY = 30;
                 }
 
-                pdf.setFillColor(241, 245, 249);
-                pdf.rect(14, startY - 5, 182, 10, 'F');
+                // Batch Header Card
+                pdf.setDrawColor(226, 232, 240);
+                pdf.setLineWidth(0.5);
+                pdf.setFillColor(248, 250, 252);
+                pdf.rect(14, startY - 8, 182, 15, 'FD');
                 
-                pdf.setTextColor(30, 41, 59);
-                pdf.setFontSize(12);
+                pdf.setTextColor(79, 70, 229);
+                pdf.setFontSize(14);
                 pdf.setFont(undefined, 'bold');
-                pdf.text(batchName, 16, startY);
+                pdf.text(`📦 ${batchName}`, 20, startY);
                 
-                pdf.setFontSize(9);
+                pdf.setFontSize(10);
                 pdf.setFont(undefined, 'normal');
                 pdf.setTextColor(100, 116, 139);
-                pdf.text(`${items.length} items | ₦${batchTotal.toFixed(2)}`, 150, startY);
+                pdf.text(`${items.length} item${items.length !== 1 ? 's' : ''}`, 190, startY - 2, { align: 'right' });
+                pdf.setTextColor(16, 185, 129);
+                pdf.setFont(undefined, 'bold');
+                pdf.text(`₦${batchTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 190, startY + 5, { align: 'right' });
 
-                startY += 10;
+                startY += 12;
 
                 const rows = items.map(item => [
-                    item.name,
-                    item.code,
-                    `${item.sleeveType || ''} ${item.material || ''}`.trim(),
-                    `₦${parseFloat(item.price).toFixed(2)}`
+                    item.name || 'N/A',
+                    item.code || 'N/A',
+                    `${item.sleeveType || ''} ${item.material || ''}`.trim() || 'N/A',
+                    `₦${parseFloat(item.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 ]);
 
                 pdf.autoTable({
@@ -2014,55 +2068,81 @@
                     body: rows,
                     startY: startY,
                     margin: { left: 14, right: 14 },
+                    theme: 'striped',
                     headStyles: {
                         fillColor: [79, 70, 229],
                         textColor: [255, 255, 255],
                         fontStyle: 'bold',
-                        fontSize: 9
+                        fontSize: 11,
+                        halign: 'center'
                     },
                     bodyStyles: {
-                        fontSize: 8,
-                        textColor: [51, 65, 85]
+                        fontSize: 10,
+                        textColor: [51, 65, 85],
+                        cellPadding: 3
                     },
                     alternateRowStyles: {
                         fillColor: [248, 250, 252]
                     },
                     columnStyles: {
-                        0: { cellWidth: 60 },
-                        1: { cellWidth: 45 },
-                        2: { cellWidth: 50 },
-                        3: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }
+                        0: { cellWidth: 70, fontStyle: 'bold' },
+                        1: { cellWidth: 40, halign: 'center' },
+                        2: { cellWidth: 50, halign: 'center' },
+                        3: { cellWidth: 32, halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] }
+                    },
+                    styles: {
+                        lineColor: [226, 232, 240],
+                        lineWidth: 0.3
                     }
                 });
 
-                startY = pdf.lastAutoTable.finalY + 15;
+                startY = pdf.lastAutoTable.finalY + 20;
             });
 
+            // Sales Summary Section
             if (startY > 240) {
                 pdf.addPage();
-                startY = 20;
+                startY = 30;
             }
 
-            pdf.setFillColor(79, 70, 229);
-            pdf.rect(14, startY, 182, 30, 'F');
+            pdf.setFillColor(16, 185, 129);
+            pdf.rect(14, startY, 182, 35, 'F');
             
             pdf.setTextColor(255, 255, 255);
-            pdf.setFontSize(14);
+            pdf.setFontSize(18);
             pdf.setFont(undefined, 'bold');
-            pdf.text("SALES SUMMARY", 20, startY + 10);
+            pdf.text("💰 SALES SUMMARY", 20, startY + 12);
             
-            pdf.setFontSize(11);
+            pdf.setDrawColor(255, 255, 255);
+            pdf.setLineWidth(0.3);
+            pdf.line(20, startY + 16, 190, startY + 16);
+            
+            pdf.setFontSize(12);
             pdf.setFont(undefined, 'normal');
-            pdf.text(`Total Items Sold: ${totalItemsSold}`, 20, startY + 18);
-            pdf.text(`Total Revenue: ₦${totalRevenue.toFixed(2)}`, 20, startY + 25);
+            pdf.text(`Total Items Sold:`, 25, startY + 25);
+            pdf.setFont(undefined, 'bold');
+            pdf.text(`${totalItemsSold}`, 190, startY + 25, { align: 'right' });
+            
+            pdf.setFont(undefined, 'normal');
+            pdf.text(`Total Revenue:`, 25, startY + 32);
+            pdf.setFontSize(16);
+            pdf.setFont(undefined, 'bold');
+            pdf.text(`₦${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 190, startY + 32, { align: 'right' });
 
+            // Footer on all pages
             const pageCount = pdf.internal.getNumberOfPages();
             for (let i = 1; i <= pageCount; i++) {
                 pdf.setPage(i);
-                pdf.setFontSize(8);
+                
+                // Footer line
+                pdf.setDrawColor(226, 232, 240);
+                pdf.setLineWidth(0.5);
+                pdf.line(14, 280, 196, 280);
+                
+                pdf.setFontSize(9);
                 pdf.setTextColor(148, 163, 184);
-                pdf.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
-                pdf.text('Real Stitch Inventory System', 105, 285, { align: 'center' });
+                pdf.text(`Generated on ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`, 105, 285, { align: 'center' });
+                pdf.text(`Page ${i} of ${pageCount} | Real Stitch Inventory System`, 105, 290, { align: 'center' });
             }
 
             pdf.save(`RealStitch_Sales_Report_${new Date().toLocaleDateString().replace(/\//g, '-')}.pdf`);
