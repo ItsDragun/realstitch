@@ -182,10 +182,7 @@
                                     </div>
                                     <div>
                                         <label class="text-xs font-bold text-slate-400 uppercase ml-1">Material</label>
-                                        <select id="item-material" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
-                                            <option value="Plain">Plain</option>
-                                            <option value="Patterned">Patterned</option>
-                                        </select>
+                                        <input type="text" id="item-material" placeholder="e.g. Plain, Patterned, Stripped" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
                                     </div>
                                 </div>
                                 
@@ -200,6 +197,16 @@
                                     <label class="text-xs font-bold text-slate-400 uppercase ml-1">Selling Price</label>
                                     <input type="number" id="item-price" placeholder="₦" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
                                 </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Size</label>
+                                        <input type="text" id="item-size" placeholder="e.g. M, L, XL" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Colour</label>
+                                        <input type="text" id="item-colour" placeholder="e.g. Red, Blue" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
+                                    </div>
+                                </div>
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase ml-1">Product Photo (Optional)</label>
                                     <input type="file" id="item-image" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
@@ -209,7 +216,7 @@
                                 <div class="border-t border-slate-200 pt-4 mt-4">
                                     <div class="bg-blue-50 p-4 rounded-xl mb-3">
                                         <h4 class="font-bold text-sm text-blue-900 mb-2">📊 Bulk Import via Excel</h4>
-                                        <p class="text-xs text-blue-700 mb-2">Upload an Excel file with columns: <strong>Item Name, Code, Sleeve Type (LS/SS), Material (Plain/Patterned), Custom Made (Yes/No), Selling Price</strong></p>
+                                        <p class="text-xs text-blue-700 mb-2">Upload an Excel file with columns: <strong>Item Name, Code, Sleeve Type (long/short), Material, Custom Made (Yes/No), Selling Price, Size, Colour</strong></p>
                                         <p class="text-xs text-blue-600">Note: Batch must be selected above. Photos not supported in bulk import.</p>
                                     </div>
                                     <input type="file" id="bulk-excel" accept=".xlsx,.xls" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
@@ -464,6 +471,66 @@
                             </form>
                         </div>
                     </div>
+
+                    <!-- EDIT ITEM MODAL -->
+                    <div id="edit-item-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div class="glass-card p-8 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                            <h3 class="text-2xl font-bold mb-6">Edit Item</h3>
+                            <form id="edit-item-form" class="space-y-4">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Item Name</label>
+                                    <input type="text" id="edit-item-name" placeholder="e.g. Silk Blazer" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Serial/Code</label>
+                                    <input type="text" id="edit-item-code" placeholder="RS-001" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Sleeve Type</label>
+                                        <select id="edit-item-sleeve" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
+                                            <option value="Long Sleeve">Long Sleeve</option>
+                                            <option value="Short Sleeve">Short Sleeve</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Material</label>
+                                        <input type="text" id="edit-item-material" placeholder="e.g. Plain, Patterned, Stripped" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Custom Made?</label>
+                                    <select id="edit-item-custom" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none text-sm">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Selling Price</label>
+                                    <input type="number" id="edit-item-price" placeholder="₦" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none" required>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Size</label>
+                                        <input type="text" id="edit-item-size" placeholder="e.g. M, L, XL" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Colour</label>
+                                        <input type="text" id="edit-item-colour" placeholder="e.g. Red, Blue" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Product Photo (Optional)</label>
+                                    <input type="file" id="edit-item-image" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                    <div id="edit-item-image-preview" class="mt-2"></div>
+                                </div>
+                                <div class="flex gap-3 mt-6">
+                                    <button type="button" id="cancel-edit-item" class="flex-1 bg-slate-100 text-slate-600 p-3 rounded-xl font-bold">Cancel</button>
+                                    <button type="submit" class="flex-1 btn-gradient text-white p-3 rounded-xl font-bold">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -574,7 +641,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, query, orderBy, getDocs, where } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, query, orderBy, getDocs, getDoc, where } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDr51BYzXFgalvJAAB7qkWaOUHdYmt_btw",
@@ -1033,6 +1100,8 @@
                             row['Material (Plain/Patterned)'] || 
                             row['Material'] || 
                             row['material'] || 
+                            row['MATERIAL'] ||
+                            row['Material (long/short)'] ||
                             ''
                         ).trim();
                         const customMade = String(
@@ -1044,6 +1113,21 @@
                             'No'
                         ).trim();
                         const price = row['Selling Price'] || row['selling price'] || row['Price'] || row['price'] || 0;
+                        const size = String(
+                            row['Size'] || 
+                            row['size'] || 
+                            row['SIZE'] || 
+                            ''
+                        ).trim();
+                        const colour = String(
+                            row['Colour'] || 
+                            row['colour'] || 
+                            row['Color'] || 
+                            row['color'] || 
+                            row['COLOUR'] || 
+                            row['COLOR'] || 
+                            ''
+                        ).trim();
 
                         if (!itemName || !code || !price) {
                             errors.push(`Row ${i + 2}: Missing required fields (Item Name, Code, or Price)`);
@@ -1067,21 +1151,8 @@
                             }
                         }
 
-                        // Normalize material
-                        let normalizedMaterial = 'Plain'; // Default
-                        if (material !== '') {
-                            const materialUpper = material.toUpperCase();
-                            const materialLower = material.toLowerCase();
-                            
-                            if (materialUpper === 'PATTERNED' || materialLower === 'patterned' || materialLower.includes('pattern')) {
-                                normalizedMaterial = 'Patterned';
-                            } else if (materialUpper === 'PLAIN' || materialLower === 'plain') {
-                                normalizedMaterial = 'Plain';
-                            } else {
-                                // Unrecognized material
-                                errors.push(`Row ${i + 2}: Warning - Unrecognized material "${material}", defaulting to Plain`);
-                            }
-                        }
+                        // Use material as-is (no normalization)
+                        let normalizedMaterial = material || '';
 
                         // Normalize custom made
                         let normalizedCustom = 'No';
@@ -1099,6 +1170,8 @@
                             materialSources: [],
                             customMade: normalizedCustom,
                             price: parseFloat(price),
+                            size: size || "",
+                            colour: colour || "",
                             image: "",
                             status: 'available',
                             createdAt: new Date(),
@@ -1255,6 +1328,8 @@
                 materialSources: [],
                 customMade: document.getElementById('item-custom').value,
                 price: document.getElementById('item-price').value,
+                size: document.getElementById('item-size').value || "",
+                colour: document.getElementById('item-colour').value || "",
                 image: imageBase64,
                 status: 'available',
                 createdAt: new Date(),
@@ -1316,43 +1391,69 @@
                             </div>
                             
                             <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
-                                <table class="w-full text-left">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left min-w-[1200px]">
                                     <thead class="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
                                         <tr>
-                                            <th class="p-5">Visual</th>
-                                            <th class="p-5">Product Details</th>
-                                            <th class="p-5">Pricing</th>
-                                            <th class="p-5">Status</th>
-                                            <th class="p-5 text-right">Control</th>
+                                            <th class="p-3 whitespace-nowrap">Visual</th>
+                                            <th class="p-3 whitespace-nowrap min-w-[120px]">Item Name</th>
+                                            <th class="p-3 whitespace-nowrap min-w-[100px]">Code</th>
+                                            <th class="p-3 whitespace-nowrap min-w-[110px]">Sleeve Type</th>
+                                            <th class="p-3 whitespace-nowrap min-w-[100px]">Material</th>
+                                            <th class="p-3 whitespace-nowrap min-w-[110px]">Custom Made</th>
+                                            <th class="p-3 whitespace-nowrap min-w-[110px]">Selling Price</th>
+                                            <th class="p-3 whitespace-nowrap min-w-[80px]">Size</th>
+                                            <th class="p-3 whitespace-nowrap min-w-[100px]">Colour</th>
+                                            <th class="p-3 whitespace-nowrap min-w-[100px]">Status</th>
+                                            <th class="p-3 text-right whitespace-nowrap min-w-[280px]">Control</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
                                         ${items.map(item => `
                                             <tr class="table-row-hover transition-colors">
-                                                <td class="p-5">
+                                                <td class="p-3">
                                                     <div class="w-16 h-16 rounded-2xl border-2 border-white shadow-sm overflow-hidden bg-slate-100">
                                                         <img src="${item.image || 'https://via.placeholder.com/64'}" class="w-full h-full object-cover">
                                                     </div>
                                                 </td>
-                                                <td class="p-5">
-                                                    <div class="font-bold text-slate-800">${item.name}</div>
-                                                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Code: ${item.code}</div>
+                                                <td class="p-3">
+                                                    <div class="font-bold text-slate-800 whitespace-nowrap">${item.name || 'N/A'}</div>
                                                 </td>
-                                                <td class="p-5">
-                                                    <div class="text-xs font-semibold text-slate-500">${item.sleeveType || ''} ${item.material || ''}</div>
-                                                    <div class="text-indigo-600 font-bold ${currentUserRole === 'viewer' ? 'viewer-hide-price' : ''}">₦${item.price}</div>
+                                                <td class="p-3">
+                                                    <div class="text-xs font-semibold text-slate-600 whitespace-nowrap">${item.code || 'N/A'}</div>
                                                 </td>
-                                                <td class="p-5">
-                                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${item.status === 'sold' ? 'bg-rose-100 text-rose-600' : item.status === 'delivered' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}">
+                                                <td class="p-3">
+                                                    <div class="text-xs font-semibold text-slate-500 whitespace-nowrap">${item.sleeveType || 'N/A'}</div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="text-xs font-semibold text-slate-500 whitespace-nowrap">${item.material || 'N/A'}</div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <span class="px-2 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${item.customMade === 'Yes' ? 'bg-purple-100 text-purple-600' : 'bg-slate-100 text-slate-600'}">
+                                                        ${item.customMade || 'No'}
+                                                    </span>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="text-indigo-600 font-bold whitespace-nowrap ${currentUserRole === 'viewer' ? 'viewer-hide-price' : ''}">₦${item.price || '0'}</div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="text-xs font-semibold text-slate-600 whitespace-nowrap">${item.size || 'N/A'}</div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="text-xs font-semibold text-slate-600 whitespace-nowrap">${item.colour || 'N/A'}</div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase whitespace-nowrap ${item.status === 'sold' ? 'bg-rose-100 text-rose-600' : item.status === 'delivered' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}">
                                                         ${item.status}
                                                     </span>
                                                 </td>
-                                                <td class="p-5 text-right">
-                                                    <div class="flex justify-end gap-2">
-                                                        <button onclick="window.setStatus('${item.id}', 'available')" class="hover:bg-emerald-50 p-2 rounded-lg transition-colors text-emerald-600 font-bold text-[10px]">AVAIL</button>
-                                                        <button onclick="window.setStatus('${item.id}', 'delivered')" class="hover:bg-amber-50 p-2 rounded-lg transition-colors text-amber-600 font-bold text-[10px]">DELIV</button>
-                                                        <button onclick="window.setStatus('${item.id}', 'sold')" class="bg-slate-800 text-white px-3 py-1 rounded-lg text-[10px] font-bold">SOLD</button>
-                                                        <button onclick="window.delItem('${item.id}')" class="text-slate-300 hover:text-rose-500 transition-colors">
+                                                <td class="p-3 text-right">
+                                                    <div class="flex justify-end gap-2 flex-nowrap">
+                                                        <button onclick="window.editItem('${item.id}')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-[10px] font-bold whitespace-nowrap">EDIT</button>
+                                                        <button onclick="window.setStatus('${item.id}', 'available')" class="hover:bg-emerald-50 p-2 rounded-lg transition-colors text-emerald-600 font-bold text-[10px] whitespace-nowrap">AVAIL</button>
+                                                        <button onclick="window.setStatus('${item.id}', 'delivered')" class="hover:bg-amber-50 p-2 rounded-lg transition-colors text-amber-600 font-bold text-[10px] whitespace-nowrap">DELIV</button>
+                                                        <button onclick="window.setStatus('${item.id}', 'sold')" class="bg-slate-800 text-white px-3 py-1 rounded-lg text-[10px] font-bold whitespace-nowrap">SOLD</button>
+                                                        <button onclick="window.delItem('${item.id}')" class="text-slate-300 hover:text-rose-500 transition-colors whitespace-nowrap">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                             </svg>
@@ -1363,6 +1464,7 @@
                                         `).join('')}
                                     </tbody>
                                 </table>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1404,6 +1506,94 @@
         };
         
         window.delItem = async (id) => { if(confirm("Permanently remove this item?")) await deleteDoc(doc(db, "inventory", id)); };
+
+        let currentEditItemId = null;
+
+        window.editItem = async (id) => {
+            currentEditItemId = id;
+            const itemDocRef = doc(db, "inventory", id);
+            const itemDoc = await getDoc(itemDocRef);
+            
+            if (!itemDoc.exists()) {
+                alert('Item not found');
+                return;
+            }
+            
+            const item = itemDoc.data();
+            
+            document.getElementById('edit-item-name').value = item.name || '';
+            document.getElementById('edit-item-code').value = item.code || '';
+            document.getElementById('edit-item-sleeve').value = item.sleeveType || 'Long Sleeve';
+            document.getElementById('edit-item-material').value = item.material || '';
+            document.getElementById('edit-item-custom').value = item.customMade || 'No';
+            document.getElementById('edit-item-price').value = item.price || '';
+            document.getElementById('edit-item-size').value = item.size || '';
+            document.getElementById('edit-item-colour').value = item.colour || '';
+            
+            const previewDiv = document.getElementById('edit-item-image-preview');
+            if (item.image) {
+                previewDiv.innerHTML = `<img src="${item.image}" class="w-32 h-32 object-cover rounded-xl border-2 border-slate-200 mt-2" alt="Current image">`;
+            } else {
+                previewDiv.innerHTML = '';
+            }
+            
+            document.getElementById('edit-item-modal').classList.remove('hidden');
+        };
+
+        document.getElementById('cancel-edit-item').onclick = () => {
+            document.getElementById('edit-item-modal').classList.add('hidden');
+            document.getElementById('edit-item-form').reset();
+            document.getElementById('edit-item-image-preview').innerHTML = '';
+            currentEditItemId = null;
+        };
+
+        document.getElementById('edit-item-modal').onclick = (e) => {
+            if (e.target.id === 'edit-item-modal') {
+                document.getElementById('edit-item-modal').classList.add('hidden');
+                document.getElementById('edit-item-form').reset();
+                document.getElementById('edit-item-image-preview').innerHTML = '';
+                currentEditItemId = null;
+            }
+        };
+
+        document.getElementById('edit-item-form').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!currentEditItemId) return;
+            
+            const btn = document.getElementById('edit-item-form').querySelector('button[type="submit"]');
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+
+            const file = document.getElementById('edit-item-image').files[0];
+            let imageBase64 = null;
+            if (file) {
+                imageBase64 = await toBase64(file);
+            }
+
+            const updateData = {
+                name: document.getElementById('edit-item-name').value,
+                code: document.getElementById('edit-item-code').value,
+                sleeveType: document.getElementById('edit-item-sleeve').value,
+                material: document.getElementById('edit-item-material').value,
+                customMade: document.getElementById('edit-item-custom').value,
+                price: document.getElementById('edit-item-price').value,
+                size: document.getElementById('edit-item-size').value || "",
+                colour: document.getElementById('edit-item-colour').value || ""
+            };
+
+            if (imageBase64) {
+                updateData.image = imageBase64;
+            }
+
+            await updateDoc(doc(db, "inventory", currentEditItemId), updateData);
+
+            btn.innerText = "Save Changes";
+            btn.disabled = false;
+            document.getElementById('edit-item-modal').classList.add('hidden');
+            document.getElementById('edit-item-form').reset();
+            document.getElementById('edit-item-image-preview').innerHTML = '';
+            currentEditItemId = null;
+        };
 
         // BATCHES VIEW
         function loadBatchesView() {
