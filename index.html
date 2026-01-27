@@ -1132,6 +1132,7 @@
                         const itemName = row['Item Name'] || row['item name'] || row['Name'] || row['name'] || '';
                         const code = row['Code'] || row['code'] || row['Serial'] || row['serial'] || '';
                         const sleeveType = String(
+                            row['Sleeve Type (long/short)'] || 
                             row['Sleeve Type (LS/SS)'] || 
                             row['Sleeve Type'] || 
                             row['sleeve type'] || 
@@ -1192,6 +1193,12 @@
                                 // Unrecognized sleeve type
                                 errors.push(`Row ${i + 2}: Warning - Unrecognized sleeve type "${sleeveType}", defaulting to Long Sleeve`);
                             }
+                        } else {
+                            // Fallback: infer from product code (e.g. B1-017S = short, B1-018L = long)
+                            const codeStr = String(code).trim();
+                            const lastChar = codeStr.slice(-1).toUpperCase();
+                            if (lastChar === 'S') normalizedSleeveType = 'Short Sleeve';
+                            else if (lastChar === 'L') normalizedSleeveType = 'Long Sleeve';
                         }
 
                         // Use material as-is (no normalization)
